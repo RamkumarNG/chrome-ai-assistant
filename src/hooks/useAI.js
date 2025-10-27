@@ -78,11 +78,13 @@ export function useAI() {
   async function handleFirebaseModel(text, imageFile = null) {
     try {
       setLoading(true);
-      const modelName = "gemini-2.0-flash";
-      const model = firebaseGCM(ai, { model: modelName });
+      const model = firebaseGCM(ai, { model: "gemini-2.0-flash" });
 
       const inputParts = [];
-      if (text) inputParts.push({ text });
+
+      const userText = text?.trim() || "Describe this image in natural language.";
+      inputParts.push({ text: userText });
+
       if (imageFile) {
         const imageBase64 = await fileToBase64(imageFile);
         inputParts.push({
@@ -95,8 +97,8 @@ export function useAI() {
 
       const result = await model.generateContent(inputParts);
       const response = await result.response;
-      const output = response.text();
-      return output;
+      return response.text();
+
     } catch (err) {
       console.error("Firebase AI Error:", err);
       setError(err.message);

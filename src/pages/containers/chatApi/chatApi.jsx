@@ -33,19 +33,26 @@ const ChatAPI = () => {
   const resizeTextarea = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + "px";
+      textareaRef.current.style.height =
+        Math.min(textareaRef.current.scrollHeight, 120) + "px";
     }
   };
 
   const scrollToBottom = () => {
     if (chatWindowRef.current) {
-      chatWindowRef.current.scrollTo({ top: chatWindowRef.current.scrollHeight, behavior: "smooth" });
+      chatWindowRef.current.scrollTo({
+        top: chatWindowRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   };
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const handleSend = async () => {
     if (!inputText.trim() && !attachedImage) return;
-
     const userMessage = { type: "user", text: inputText, image: attachedImage };
     setMessages((prev) => [...prev, userMessage]);
     setInputText("");
@@ -81,13 +88,6 @@ const ChatAPI = () => {
     setAttachedImage(null);
   };
 
-  const handleClearAll = () => {
-    setMessages([]);
-    setInputText("");
-    setAttachedImage(null);
-    resizeTextarea();
-  };
-
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopyToast(true);
@@ -114,98 +114,107 @@ const ChatAPI = () => {
   };
 
   return (
-    <div className="chat-page">
-      {/* Sidebar */}
-      <div className="sidebar">
-        <SelectDropdown
-          label="Select API"
-          options={API_OPTIONS}
-          value={selectedAPI}
-          onChange={handleAPIChange}
-        />
+    <div className="chatapi-layout">
+      <aside className="chatapi-sidebar">
+        <div className="sidebar-scroll">
+          <SelectDropdown
+            label="Select API"
+            options={API_OPTIONS}
+            value={selectedAPI}
+            onChange={handleAPIChange}
+          />
+          <div className="api-configs">{renderAPIOptions()}</div>
+        </div>
+      </aside>
 
-        <div className="api-config-container">{renderAPIOptions()}</div>
+      <main className="chatapi-main">
+        <div
+          className="chatapi-messages"
+          ref={chatWindowRef}
+        >
+          {messages.length === 0 && <p className="empty-state">Start a conversation...</p>}
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`chat-message ${msg.type}`}
+            >
+              {msg.loading ? (
+                <TextLoading />
+              ) : (
+                <>
+                  {msg.text && <div className="chat-bubble">{msg.text}</div>}
+                  {msg.image && (
+                    <img
+                      src={URL.createObjectURL(msg.image)}
+                      alt="preview"
+                      className="chat-image"
+                    />
+                  )}
+                  {msg.type === "bot" && msg.text && (
+                    <button
+                      className="btn-copy"
+                      onClick={() => handleCopy(msg.text)}
+                    >
+                      <span className="copy-icon">📋</span>
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+          {progress !== null && <div className="progress-bar">{progress}%</div>}
+          {copyToast && <div className="toast">✅ Copied!</div>}
+        </div>
 
-        <div className="sidebar-actions">
+        <div className="chatapi-input">
+          {selectedAPI?.toLowerCase() === "multimodal" && (
+            <label className="btn-plus">
+              ➕
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => setAttachedImage(e.target.files[0])}
+              />
+            </label>
+          )}
+
+          <div className="input-box">
+            {attachedImage && (
+              <div className="image-preview">
+                <img src={URL.createObjectURL(attachedImage)} alt="preview" />
+                <button
+                  className="remove-img"
+                  onClick={() => setAttachedImage(null)}
+                  type="button"
+                >
+                  ❌
+                </button>
+              </div>
+            )}
+
+            <textarea
+              ref={textareaRef}
+              value={inputText}
+              onChange={(e) => {
+                setInputText(e.target.value);
+                resizeTextarea();
+              }}
+              onKeyPress={handleKeyPress}
+              placeholder="Type your message..."
+              rows={1}
+            />
+          </div>
+
           <Button
-            className="btn-secondary"
-            onClick={handleClearAll}
-            disabled={loading}
+            className="btn-send"
+            onClick={handleSend}
+            disabled={loading || (!inputText.trim() && !attachedImage)}
           >
-            🔄 Clear All Configs
+            ➤
           </Button>
         </div>
-      </div>
 
-      {/* Main Chat */}
-      <main className="chat-main">
-        <div className="chat-content">
-          <div className="chat-window" ref={chatWindowRef}>
-            {messages.length === 0 && <p className="empty-text">Start the conversation</p>}
-
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`chat-message ${msg.type}`}>
-                {msg.type === "bot" && !msg.loading && (
-                  <span className="chat-api-label">{selectedAPI}</span>
-                )}
-                {msg.loading ? (
-                  <TextLoading />
-                ) : (
-                  <>
-                    {msg.text && <div className="bubble">{msg.text}</div>}
-                    {msg.image && (
-                      <img src={URL.createObjectURL(msg.image)} alt="preview" className="msg-image"/>
-                    )}
-                    {msg.type === "bot" && !msg.loading && (
-                      <button className="btn-copy" onClick={() => handleCopy(msg.text)}>📋</button>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
-
-            {progress !== null && <div className="progress-bar">{progress}%</div>}
-            {copyToast && <div className="copy-toast">Copied!</div>}
-          </div>
-
-          {/* Chat Input */}
-          <div className="chat-input">
-            <div className="input-wrapper">
-              {selectedAPI.toLowerCase() === "multimodal" && (
-                <label className="btn-plus">
-                  ➕
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={(e) => setAttachedImage(e.target.files[0])}
-                  />
-                </label>
-              )}
-
-              <textarea
-                ref={textareaRef}
-                value={inputText}
-                onChange={(e) => { setInputText(e.target.value); resizeTextarea(); }}
-                onKeyPress={handleKeyPress}
-                placeholder="Type a message..."
-                rows={1}
-              />
-
-              {attachedImage && (
-                <img src={URL.createObjectURL(attachedImage)} alt="preview" className="input-image-preview"/>
-              )}
-
-              <Button
-                className="btn-send"
-                onClick={handleSend}
-                disabled={loading || (!inputText.trim() && !attachedImage)}
-              >
-                ➤
-              </Button>
-            </div>
-          </div>
-        </div>
 
         {error && <p className="error-text">{error}</p>}
       </main>
