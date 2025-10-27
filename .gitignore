@@ -200,3 +200,5 @@ storybook-static
 
 playwright/.auth
 screenshot.png
+
+.env

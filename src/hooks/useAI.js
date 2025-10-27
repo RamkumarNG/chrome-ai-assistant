@@ -22,7 +22,6 @@ export function useAI() {
         setLoading(true);
 
         const model = firebaseGCM(ai, { model: "gemini-2.0-flash" });
-        console.log("rk_ac multimodal", { model });
 
         const inputParts = [];
         if (text) inputParts.push({ text });

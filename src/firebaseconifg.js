@@ -8,7 +8,7 @@ import { getAnalytics } from "firebase/analytics";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyDtuHpMagGXZ58vo9XyntfCfqkgnBBVIF0",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "built-in-ai-challenge-1c9c5.firebaseapp.com",
   projectId: "built-in-ai-challenge-1c9c5",
   storageBucket: "built-in-ai-challenge-1c9c5.firebasestorage.app",
