@@ -63,6 +63,8 @@ export function useAI() {
       }
     }
 
+    console.log('rk_useAi', {API_CLASSES, apiName})
+
     const APIClass = API_CLASSES[apiName];
     if (!APIClass) {
       setLoading(false);
@@ -70,9 +72,11 @@ export function useAI() {
       return "";
     }
 
+    console.log('rk_useAi', {APIClass, apiName})
+
     try {
       const availability = await APIClass.availability(options);
-      console.log("availability:", { availability, options, text });
+      console.log("rk_useAi:", { availability, options, text });
 
       if (availability === "unavailable") {
         throw new Error(`${apiName} API is unsupported`);
