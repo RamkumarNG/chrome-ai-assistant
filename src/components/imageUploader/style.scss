@@ -1,0 +1,66 @@
+.image-upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  background: #fafafa;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  margin-top: 1rem;
+
+  &.dragging {
+    border-color: #6c63ff;
+    background: #f2f0ff;
+  }
+
+  .hidden-input {
+    display: none;
+  }
+
+  .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      color: #6c63ff;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+  }
+
+  .preview-container {
+    position: relative;
+    display: inline-block;
+
+    .preview-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.85);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      padding: 0.3rem 0.4rem;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+
+      &:hover {
+        background: rgba(255, 0, 0, 0.75);
+        color: #fff;
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+/* Global */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+body {
+  font-size: 14px;
+  margin: 0;
+  height: 100%;
+  transition: background 0.3s, color 0.3s;
+}
+
+.home-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 60px;
+
+    .app-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+
+      .active {
+        background-color: #007bff;
+        color: white;
+        border-radius: 4px;
+        padding: 4px 8px;
+      }
+    }
+  }
+
+  .main-content {
+    flex: 1 1 0;
+    display: flex;
+    padding: 20px;
+    overflow: hidden;
+  }
+}

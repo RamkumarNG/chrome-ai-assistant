@@ -1,0 +1,98 @@
+
+.single-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+
+  .content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      padding: 24px;
+      padding-top: 0px;
+      padding-left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-sizing: border-box;
+      border-right: 1px solid #e0e0e0;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+      height: 100%;
+      overflow-y: auto;
+
+      .sidebar-actions {
+        flex-shrink: 0;
+        margin-top: auto;      // push button to bottom
+        display: flex;
+        justify-content: flex-end;
+      }
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+  }
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  color: var(--primary-color);
+}
+
+/* Optional nice scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto; 
+}
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+
+  h4 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #1e40af;
+  }
+}
+
+.card h3 {
+  margin-top: 0;
+  color: var(--primary-color);
+}
+
+.action-buttons button {
+  cursor: pointer;
+}

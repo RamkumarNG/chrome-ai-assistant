@@ -1,0 +1,13 @@
+.tooltip-box {
+  max-width: 280px;
+  padding: 8px 12px;
+  background: rgba(50,50,50,0.95);
+  color: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 1000;
+  word-wrap: break-word;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  pointer-events: none;
+  transition: opacity 0.15s ease-in-out;
+}

@@ -1,0 +1,85 @@
+.buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Primary Button */
+.btn-primary {
+  background: #007bff; /* enabled color */
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #0056b3; /* hover color */
+}
+
+.btn-primary:disabled {
+  background: #a0c4ff; /* disabled color */
+  color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: #e0f0ff; /* enabled color */
+  color: #007bff;
+}
+
+.btn-secondary:hover {
+  background: #c0e0ff; /* hover color */
+}
+
+.btn-secondary:disabled {
+  background: #f0f4f8; /* disabled color */
+  color: #a0c4ff;
+  cursor: not-allowed;
+}
+
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.btn-primary {
+  background-color: #2563eb; /* blue-600 */
+  color: white;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #1e40af;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #374151;
+  border: 2px solid #d1d5db;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+.error-text {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}

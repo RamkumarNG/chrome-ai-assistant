@@ -1,0 +1,221 @@
+.hybrid-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+}
+
+.sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-top: 0px;
+  padding-left: 0px;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 12px;
+  }
+
+  .api-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .api-card {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #e3f2fd;
+        border-left: 4px solid #1e88e5;
+        transform: translateX(2px);
+      }
+    }
+  }
+
+  .config-panel-container {
+    margin-top: 14px;
+    background: #f9fafb;
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    overflow-y: auto;
+  }
+}
+
+.main-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  overflow: hidden;
+  background: #f5f7fa;
+}
+
+.top-bar {
+  flex-shrink: 0;
+  margin-bottom: 10px;
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .action-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .error-text {
+    color: #e53935;
+    font-size: 13px;
+  }
+}
+
+.middle-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 12px;
+}
+
+.workflow-visual {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px;
+  background: linear-gradient(135deg, #f0f4ff, #e8f0fe);
+  border-radius: 12px;
+  overflow-x: auto;
+  gap: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+  .workflow-node {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #cfd8dc;
+    font-size: 13px;
+    min-width: 100px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: #1e88e5;
+      background: #e3f2fd;
+    }
+
+    &.selected {
+      border-color: #1565c0;
+      background: #bbdefb;
+      font-weight: 600;
+    }
+
+    .btn-delete {
+      border: none;
+      background: #ffebee;
+      color: #d32f2f;
+      border-radius: 4px;
+      padding: 2px 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      opacity: 0;
+    }
+
+    &:hover .btn-delete {
+      opacity: 1;
+    }
+
+    .btn-delete:hover {
+      background: #ef5350;
+      color: white;
+    }
+  }
+
+  .arrow {
+    color: #2196f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+  }
+}
+
+.outputs-grid {
+  flex: 1;
+  display: flex;
+  gap: 16px;
+  overflow: hidden;
+
+  .intermediate,
+  .card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    overflow-y: auto;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+
+    h4 {
+      font-size: 14px;
+      color: #1e40af;
+      margin-bottom: 8px;
+    }
+
+    .output-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .output-card {
+      background: #f8fafc;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 13px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+      strong {
+        color: #1e3a8a;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
