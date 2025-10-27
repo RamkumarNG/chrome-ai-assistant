@@ -17,28 +17,36 @@ export function useAI() {
   const callAI = async (apiName, text, options = {}, imageFile = null) => {
     setError("");
 
-    if (apiName.toLowerCase() === "multimodal" && imageFile) {
+    if (apiName.toLowerCase() === "multimodal") {
       try {
         setLoading(true);
 
-        const model = firebaseGCM(ai, { model: "gemini-2.0-flash" });
+        const modelName = "gemini-2.0-flash";
+        const model = firebaseGCM(ai, { model: modelName });
 
         const inputParts = [];
-        if (text) inputParts.push({ text });
 
-        const imageBase64 = await fileToBase64(imageFile);
-        inputParts.push({
-          inlineData: {
-            data: imageBase64.split(",")[1],
-            mimeType: imageFile.type || "image/jpeg",
-          },
-        });
+        // Add text if provided
+        if (text && text.trim() !== "") inputParts.push({ text });
+
+        // Add image if provided
+        if (imageFile) {
+          const imageBase64 = await fileToBase64(imageFile);
+          inputParts.push({
+            inlineData: {
+              data: imageBase64.split(",")[1],
+              mimeType: imageFile.type || "image/jpeg",
+            },
+          });
+        }
 
         inputParts.push({
           text:
-            text && text.trim() !== ""
-              ? `${text}\n\nAdditionally, describe what is visible in the image in detail.`
-              : "Describe what is happening in this image in a natural, detailed way.",
+            imageFile && text
+              ? `${text}\n\nAdditionally, describe what is visible in the image in context.`
+              : imageFile
+              ? "Describe what is happening in this image in a natural, detailed way."
+              : "Analyze, summarize, or expand on the given text in detail.",
         });
 
         const result = await model.generateContent(inputParts);
@@ -93,22 +101,28 @@ export function useAI() {
 
       setLoading(true);
       let result = "";
+
       switch (apiName) {
         case "Proofreader":
           result = await session.proofread(text);
           return result.correctedInput;
+
         case "Writer":
           result = await session.write(text);
           return result;
+
         case "Rewriter":
           result = await session.rewrite(text);
           return result;
+
         case "Summarizer":
           result = await session.summarize(text);
           return result;
+
         case "Translator":
           result = await session.translate(text);
           return result;
+
         default:
           return text;
       }

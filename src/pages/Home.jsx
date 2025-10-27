@@ -5,7 +5,7 @@ import SingleAPI from "./containers/singleApi";
 import ChatAPI from "./containers/chatApi";
 
 export default function Home() {
-  const [mode, setMode] = useState("hybrid");
+  const [mode, setMode] = useState("single");
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
 
