@@ -69,6 +69,8 @@ export function useAI() {
         }
       } catch (err) {
         console.warn(`${apiName} Chrome API unavailable, falling back to Firebase.`, err);
+      } finally {
+        setLoading(false);
       }
     }
 
