@@ -14,16 +14,17 @@ export function useAI() {
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
 
-  const callAI = async (apiName, text, options = {}, imageFile = null, audioFile = null) => {
+  const callAI = async (apiName, text, options = {}, imageFile = null, audioFiles = []) => {
     setError("");
-    console.log('rk_aud', {apiName, options, imageFile})
 
-    if (apiName.toLowerCase() === "multimodal" || imageFile !== null || audioFile !== null) {
-      return handleFirebaseModel(text, imageFile, audioFile);
+    let extractedText = text || "";
+
+    if (imageFile || (audioFiles && audioFiles.length > 0)) {
+      extractedText = await extractTextFromInput(text, imageFile, audioFiles);
     }
 
     const APIClass = API_CLASSES[apiName];
-    if (APIClass) {
+    if (APIClass && Object.keys(options).length > 0) {
       try {
         const availability = await APIClass.availability(options);
         if (availability === "unavailable") throw new Error("unavailable");
@@ -39,42 +40,45 @@ export function useAI() {
         }
 
         const session = await APIClass.create(params);
-        if (availability === "downloadable") {
-          setProgress(100);
-          setTimeout(() => setProgress(null), 500);
-        }
-
         setLoading(true);
+
         let result = "";
         switch (apiName) {
           case "Proofreader":
-            result = await session.proofread(text);
+            console.log('rk_neo --> proofread got triggerd', )
+            result = await session.proofread(extractedText);
             return result.correctedInput;
           case "Writer":
-            result = await session.write(text);
+            console.log('rk_neo --> Writer got triggerd', )
+            result = await session.write(extractedText);
             return result;
           case "Rewriter":
-            result = await session.rewrite(text);
+            console.log('rk_neo --> Rewriter got triggerd', )
+            result = await session.rewrite(extractedText);
             return result;
           case "Summarizer":
-            result = await session.summarize(text);
+            console.log('rk_neo --> Summarizer got triggerd', )
+            result = await session.summarize(extractedText);
             return result;
           case "Translator":
-            result = await session.translate(text);
+            console.log('rk_neo --> Translator got triggerd', )
+            result = await session.translate(extractedText);
             return result;
           default:
-            return text;
+            return extractedText;
         }
       } catch (err) {
         console.warn(`${apiName} Chrome API unavailable, falling back to Firebase.`, err);
       }
     }
 
-    return handleFirebaseModel(text);
+    // Fallback to Firebase Gemini model
+    return extractTextFromInput(text, imageFile, audioFiles);
   };
 
-  async function handleFirebaseModel(text, imageFile = null, audioFile = null) {
+  async function extractTextFromInput(text, imageFile = null, audioFiles = []) {
     try {
+      console.log('rk_neo --> firebaseGCM got triggerd', )
       setLoading(true);
       const model = firebaseGCM(ai, { model: "gemini-2.0-flash" });
 
@@ -92,19 +96,22 @@ export function useAI() {
         });
       }
 
-      if (audioFile) {
-        const audioBase64 = await fileToBase64(audioFile);
-        inputParts.push({
-          inlineData: {
-            data: audioBase64.split(",")[1],
-            mimeType: audioFile.type || "audio/mpeg",
-          },
-        });
+      if (audioFiles && audioFiles.length > 0) {
+        for (const audioFile of audioFiles) {
+          const audioBase64 = await fileToBase64(audioFile);
+          inputParts.push({
+            inlineData: {
+              data: audioBase64.split(",")[1],
+              mimeType: audioFile.type || "audio/mpeg",
+            },
+          });
+        }
       }
 
       const result = await model.generateContent(inputParts);
       const response = await result.response;
-      return response.text();
+      const outputText = response.text();
+      return outputText || "";
     } catch (err) {
       console.error("Firebase AI Error:", err);
       setError(err.message);

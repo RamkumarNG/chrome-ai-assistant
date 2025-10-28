@@ -133,20 +133,6 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
               setWorkflow(newWorkflow);
             }}
           />
-          {step.imageFile && (
-            <div className="image-preview">
-              <img
-                src={URL.createObjectURL(step.imageFile)}
-                alt="Preview"
-                style={{
-                  maxWidth: "100%",
-                  borderRadius: "12px",
-                  marginTop: "10px",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                }}
-              />
-            </div>
-          )}
         </div>
       )}
     </div>

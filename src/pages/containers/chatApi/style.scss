@@ -122,6 +122,62 @@
   z-index: 1;
 }
 
+.audio-preview-container {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 90%;
+  margin-bottom: 8px;
+  bottom: 100px;
+  left: 30px;
+}
+
+.audio-card {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 8px 10px;
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease;
+}
+
+.audio-card:hover {
+  transform: translateY(-2px);
+}
+
+.audio-filename {
+  font-size: 12px;
+  color: #475569;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audio-card audio {
+  width: 100%;
+  height: 28px;
+}
+
+.remove-audio-card {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 .chatapi-input .input-box {
   display: flex;
   align-items: center;
@@ -191,43 +247,41 @@
   background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }
 
-.image-preview,
-.audio-preview {
+.image-preview {
   position: absolute;
   left: 85%;
-  width: 50px;
-  height: 50px;
-  border-radius: 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e5e7eb;
   background: #fff;
   z-index: 20;
 }
+
 .image-preview img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 20px;
 }
-.remove-img
-.remove-audio {
+
+.remove-img {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
+  top: 2px;
+  right: -2px;
+  background: transparent;
   border: none;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
   cursor: pointer;
-  opacity: 0.9;
-  transition: 0.2s ease;
+  color: #444;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
+
 .remove-img:hover {
-  opacity: 1;
-  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.08);
+  color: #e11d48; /* Tailwind rose-600 */
 }
 
 

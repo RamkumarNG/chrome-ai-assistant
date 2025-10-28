@@ -4,6 +4,7 @@ import {
   ApiOptionSelector,
   SelectDropdown,
   TextLoading,
+  DownloadLoader,
 } from "../../../components";
 import { API_OPTIONS, API_CONFIGS, API_KEY_LABELS } from "../../constants";
 import { useAI } from "../../../hooks/useAI";
@@ -16,7 +17,7 @@ const ChatAPI = () => {
   const [selectedAPI, setSelectedAPI] = useState("Proofreader");
   const [apiConfig, setApiConfig] = useState({});
   const [attachedImage, setAttachedImage] = useState(null);
-  const [attachedAudio, setAttachedAudio] = useState(null);
+  const [attachedAudios, setAttachedAudios] = useState([]); // ✅ multiple audios
   const [copyToast, setCopyToast] = useState(false);
 
   const chatWindowRef = useRef(null);
@@ -52,19 +53,19 @@ const ChatAPI = () => {
   useEffect(() => scrollToBottom(), [messages]);
 
   const handleSend = async () => {
-    if (!inputText.trim() && !attachedImage && !attachedAudio) return;
+    if (!inputText.trim() && !attachedImage && attachedAudios.length === 0) return;
 
     const userMessage = {
       type: "user",
       text: inputText,
       image: attachedImage,
-      audio: attachedAudio,
+      audios: attachedAudios,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInputText("");
     setAttachedImage(null);
-    setAttachedAudio(null);
+    setAttachedAudios([]);
     resizeTextarea();
     scrollToBottom();
 
@@ -76,7 +77,7 @@ const ChatAPI = () => {
       userMessage.text,
       apiConfig,
       userMessage.image,
-      userMessage.audio
+      userMessage.audios
     );
 
     setMessages((prev) => {
@@ -107,6 +108,16 @@ const ChatAPI = () => {
       setCopyToast(true);
       setTimeout(() => setCopyToast(false), 1500);
     });
+  };
+
+  const handleAudioUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setAttachedAudios((prev) => [...prev, ...files]);
+    e.target.value = "";
+  };
+
+  const handleRemoveAudio = (index) => {
+    setAttachedAudios((prev) => prev.filter((_, i) => i !== index));
   };
 
   const renderAPIOptions = () => {
@@ -142,19 +153,13 @@ const ChatAPI = () => {
       </aside>
 
       <main className="chatapi-main">
-        <div
-          className="chatapi-messages"
-          ref={chatWindowRef}
-        >
+        <div className="chatapi-messages" ref={chatWindowRef}>
           {messages.length === 0 && (
             <p className="empty-state">Start a conversation...</p>
           )}
 
           {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`chat-message ${msg.type}`}
-            >
+            <div key={idx} className={`chat-message ${msg.type}`}>
               {msg.loading ? (
                 <TextLoading />
               ) : (
@@ -167,11 +172,18 @@ const ChatAPI = () => {
                       className="chat-image"
                     />
                   )}
+                  {msg.audios &&
+                    msg.audios.map((audio, aidx) => (
+                      <div key={aidx} className="audio-card">
+                        <div className="audio-filename">{audio.name}</div>
+                        <audio controls>
+                          <source src={URL.createObjectURL(audio)} />
+                          Your browser does not support the audio tag.
+                        </audio>
+                      </div>
+                    ))}
                   {msg.type === "bot" && msg.text && (
-                    <button
-                      className="btn-copy"
-                      onClick={() => handleCopy(msg.text)}
-                    >
+                    <button className="btn-copy" onClick={() => handleCopy(msg.text)}>
                       <span className="copy-icon">📋</span>
                     </button>
                   )}
@@ -184,23 +196,26 @@ const ChatAPI = () => {
           {copyToast && <div className="toast">✅ Copied!</div>}
         </div>
 
-        <div className="chatapi-input">
-          {/* {attachedAudio && (
-            <div className="audio-top-preview">
-              <div className="audio-info">
-                <Mic size={16} className="audio-icon" />
-                <span className="audio-name">{attachedAudio.name}</span>
+        {/* ✅ Floating multiple audio cards (side-by-side with filename) */}
+        {attachedAudios.length > 0 && (
+          <div className="audio-preview-container">
+            {attachedAudios.map((audio, index) => (
+              <div key={audio.id} className="audio-card">
+                <div className="audio-filename">{audio.name}</div>
+                <audio controls src={audio.id}></audio>
+                <button
+                  className="remove-audio-card"
+                  onClick={() => handleRemoveAudio(index)}
+                >
+                  <XCircle size={20} />
+                </button>
               </div>
-              <button
-                className="remove-audio"
-                onClick={() => setAttachedAudio(null)}
-                type="button"
-              >
-                <XCircle size={16} />
-              </button>
-            </div>
-          )} */}
+            ))}
+          </div>
+        )}
 
+
+        <div className="chatapi-input">
           <label className="btn-plus">
             <Plus size={20} />
             <input
@@ -211,19 +226,16 @@ const ChatAPI = () => {
             />
           </label>
 
-          {/* <label className="btn-plus">
+          <label className="btn-plus">
             <Mic size={20} />
             <input
               type="file"
               accept="audio/*"
+              multiple
               style={{ display: "none" }}
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) setAttachedAudio(file);
-                e.target.value = "";
-              }}
+              onChange={handleAudioUpload}
             />
-          </label> */}
+          </label>
 
           <div className="input-box">
             <textarea
@@ -241,13 +253,17 @@ const ChatAPI = () => {
 
           {attachedImage && (
             <div className="image-preview">
-              <img src={URL.createObjectURL(attachedImage)} alt="preview" />
+              <img
+                className="image-dis"
+                src={URL.createObjectURL(attachedImage)}
+                alt="preview"
+              />
               <button
                 className="remove-img"
                 onClick={() => setAttachedImage(null)}
                 type="button"
               >
-                <XCircle size={20} />
+                <XCircle size={24} strokeWidth={2.5} />
               </button>
             </div>
           )}
@@ -255,9 +271,7 @@ const ChatAPI = () => {
           <Button
             className="btn-send"
             onClick={handleSend}
-            disabled={
-              loading || (!inputText.trim() && !attachedImage && !attachedAudio)
-            }
+            disabled={loading || (!inputText.trim() && !attachedImage && attachedAudios.length === 0)}
             style={{ marginLeft: "100px" }}
           >
             ➤
@@ -265,6 +279,7 @@ const ChatAPI = () => {
         </div>
 
         {error && <p className="error-text">{error}</p>}
+        {progress !== null && <DownloadLoader progress={progress} />}
       </main>
     </div>
   );
