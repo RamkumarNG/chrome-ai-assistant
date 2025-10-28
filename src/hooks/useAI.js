@@ -10,11 +10,6 @@ const API_CLASSES = {
 };
 
 export function useAI() {
-  console.log('rk_neo', API_CLASSES['Proofreader'])
-  console.log('rk_neo', API_CLASSES['Writer'])
-  console.log('rk_neo', API_CLASSES['Rewriter'])
-  console.log('rk_neo', API_CLASSES['Summarizer'])
-  console.log('rk_neo', API_CLASSES['Translator'])
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
