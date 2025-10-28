@@ -1,4 +1,4 @@
-export default function Button({ children, onClick, disabled, className = "", ...props }) {
+const Button = ({ children, onClick, disabled, className = "", ...props }) => {
   return (
     <button
       className={`btn ${className}`}
@@ -10,3 +10,5 @@ export default function Button({ children, onClick, disabled, className = "", ..
     </button>
   );
 }
+
+export default Button;

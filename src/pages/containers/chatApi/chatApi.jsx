@@ -7,6 +7,7 @@ import {
 } from "../../../components";
 import { API_OPTIONS, API_CONFIGS, API_KEY_LABELS } from "../../constants";
 import { useAI } from "../../../hooks/useAI";
+import { Mic, Plus, XCircle } from "lucide-react";
 
 const ChatAPI = () => {
   const { loading, progress, error, callAI } = useAI();
@@ -15,6 +16,7 @@ const ChatAPI = () => {
   const [selectedAPI, setSelectedAPI] = useState("Proofreader");
   const [apiConfig, setApiConfig] = useState({});
   const [attachedImage, setAttachedImage] = useState(null);
+  const [attachedAudio, setAttachedAudio] = useState(null);
   const [copyToast, setCopyToast] = useState(false);
 
   const chatWindowRef = useRef(null);
@@ -47,31 +49,43 @@ const ChatAPI = () => {
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(() => scrollToBottom(), [messages]);
 
   const handleSend = async () => {
-    if (!inputText.trim() && !attachedImage) return;
-    const userMessage = { type: "user", text: inputText, image: attachedImage };
+    if (!inputText.trim() && !attachedImage && !attachedAudio) return;
+
+    const userMessage = {
+      type: "user",
+      text: inputText,
+      image: attachedImage,
+      audio: attachedAudio,
+    };
+
     setMessages((prev) => [...prev, userMessage]);
     setInputText("");
     setAttachedImage(null);
+    setAttachedAudio(null);
     resizeTextarea();
     scrollToBottom();
 
     const loadingMessage = { type: "bot", text: "", loading: true };
     setMessages((prev) => [...prev, loadingMessage]);
-    scrollToBottom();
 
-    const result = await callAI(selectedAPI, userMessage.text, apiConfig, userMessage.image);
+    const result = await callAI(
+      selectedAPI,
+      userMessage.text,
+      apiConfig,
+      userMessage.image,
+      userMessage.audio
+    );
 
     setMessages((prev) => {
       const updated = [...prev];
-      const loadingIndex = updated.findIndex((m) => m.loading);
-      if (loadingIndex !== -1) updated[loadingIndex] = { type: "bot", text: result };
+      const idx = updated.findIndex((m) => m.loading);
+      if (idx !== -1) updated[idx] = { type: "bot", text: result };
       return updated;
     });
+
     scrollToBottom();
   };
 
@@ -132,7 +146,10 @@ const ChatAPI = () => {
           className="chatapi-messages"
           ref={chatWindowRef}
         >
-          {messages.length === 0 && <p className="empty-state">Start a conversation...</p>}
+          {messages.length === 0 && (
+            <p className="empty-state">Start a conversation...</p>
+          )}
+
           {messages.map((msg, idx) => (
             <div
               key={idx}
@@ -162,37 +179,53 @@ const ChatAPI = () => {
               )}
             </div>
           ))}
+
           {progress !== null && <div className="progress-bar">{progress}%</div>}
           {copyToast && <div className="toast">✅ Copied!</div>}
         </div>
 
         <div className="chatapi-input">
-          {selectedAPI?.toLowerCase() === "multimodal" && (
-            <label className="btn-plus">
-              ➕
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => setAttachedImage(e.target.files[0])}
-              />
-            </label>
-          )}
+          {/* {attachedAudio && (
+            <div className="audio-top-preview">
+              <div className="audio-info">
+                <Mic size={16} className="audio-icon" />
+                <span className="audio-name">{attachedAudio.name}</span>
+              </div>
+              <button
+                className="remove-audio"
+                onClick={() => setAttachedAudio(null)}
+                type="button"
+              >
+                <XCircle size={16} />
+              </button>
+            </div>
+          )} */}
+
+          <label className="btn-plus">
+            <Plus size={20} />
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={(e) => setAttachedImage(e.target.files[0])}
+            />
+          </label>
+
+          {/* <label className="btn-plus">
+            <Mic size={20} />
+            <input
+              type="file"
+              accept="audio/*"
+              style={{ display: "none" }}
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) setAttachedAudio(file);
+                e.target.value = "";
+              }}
+            />
+          </label> */}
 
           <div className="input-box">
-            {attachedImage && (
-              <div className="image-preview">
-                <img src={URL.createObjectURL(attachedImage)} alt="preview" />
-                <button
-                  className="remove-img"
-                  onClick={() => setAttachedImage(null)}
-                  type="button"
-                >
-                  ❌
-                </button>
-              </div>
-            )}
-
             <textarea
               ref={textareaRef}
               value={inputText}
@@ -206,15 +239,30 @@ const ChatAPI = () => {
             />
           </div>
 
+          {attachedImage && (
+            <div className="image-preview">
+              <img src={URL.createObjectURL(attachedImage)} alt="preview" />
+              <button
+                className="remove-img"
+                onClick={() => setAttachedImage(null)}
+                type="button"
+              >
+                <XCircle size={20} />
+              </button>
+            </div>
+          )}
+
           <Button
             className="btn-send"
             onClick={handleSend}
-            disabled={loading || (!inputText.trim() && !attachedImage)}
+            disabled={
+              loading || (!inputText.trim() && !attachedImage && !attachedAudio)
+            }
+            style={{ marginLeft: "100px" }}
           >
             ➤
           </Button>
         </div>
-
 
         {error && <p className="error-text">{error}</p>}
       </main>

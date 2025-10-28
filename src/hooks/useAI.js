@@ -14,15 +14,14 @@ export function useAI() {
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
 
-  const callAI = async (apiName, text, options = {}, imageFile = null) => {
+  const callAI = async (apiName, text, options = {}, imageFile = null, audioFile = null) => {
     setError("");
+    console.log('rk_aud', {apiName, options, imageFile})
 
-    // Handle multimodal (image + text)
-    if (apiName.toLowerCase() === "multimodal") {
-      return handleFirebaseModel(text, imageFile);
+    if (apiName.toLowerCase() === "multimodal" || imageFile !== null || audioFile !== null) {
+      return handleFirebaseModel(text, imageFile, audioFile);
     }
 
-    // Try Chrome Built-in API first
     const APIClass = API_CLASSES[apiName];
     if (APIClass) {
       try {
@@ -71,18 +70,16 @@ export function useAI() {
       }
     }
 
-    // If Chrome API is undefined or fails, fallback to Firebase AI
     return handleFirebaseModel(text);
   };
 
-  async function handleFirebaseModel(text, imageFile = null) {
+  async function handleFirebaseModel(text, imageFile = null, audioFile = null) {
     try {
       setLoading(true);
       const model = firebaseGCM(ai, { model: "gemini-2.0-flash" });
 
       const inputParts = [];
-
-      const userText = text?.trim() || "Describe this image in natural language.";
+      const userText = text?.trim() || "Describe this input.";
       inputParts.push({ text: userText });
 
       if (imageFile) {
@@ -95,10 +92,19 @@ export function useAI() {
         });
       }
 
+      if (audioFile) {
+        const audioBase64 = await fileToBase64(audioFile);
+        inputParts.push({
+          inlineData: {
+            data: audioBase64.split(",")[1],
+            mimeType: audioFile.type || "audio/mpeg",
+          },
+        });
+      }
+
       const result = await model.generateContent(inputParts);
       const response = await result.response;
       return response.text();
-
     } catch (err) {
       console.error("Firebase AI Error:", err);
       setError(err.message);
