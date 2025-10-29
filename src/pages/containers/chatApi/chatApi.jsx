@@ -81,7 +81,7 @@ const ChatAPI = () => {
     setShowHybrid(false);
     switch (useCase) {
       case "Email Improve":
-        setSelectedAPI("Proofreader");
+        setSelectedAPI("Writer");
         break;
       case "Simplify Text":
         setSelectedAPI("Rewriter");
