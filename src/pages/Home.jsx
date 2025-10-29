@@ -39,26 +39,26 @@ export default function Home() {
     const componentMap = {
       single: (
         <SingleAPI
-          inputText={singleInput}
-          setInputText={setSingleInput}
-          outputText={singleOutput}
-          setOutputText={setSingleOutput}
-          selectedAPI={selectedAPI}
-          setSelectedAPI={setSelectedAPI}
-          apiConfig={apiConfig}
-          setApiConfig={setApiConfig}
+          // inputText={singleInput}
+          // setInputText={setSingleInput}
+          // outputText={singleOutput}
+          // setOutputText={setSingleOutput}
+          // selectedAPI={selectedAPI}
+          // setSelectedAPI={setSelectedAPI}
+          // apiConfig={apiConfig}
+          // setApiConfig={setApiConfig}
         />
       ),
       hybrid: (
         <HybridWorkflow
-          inputText={hybridInput}
-          setInputText={setHybridInput}
-          outputText={hybridOutput}
-          setOutputText={setHybridOutput}
-          selectedAPI={selectedAPI}
-          setSelectedAPI={setSelectedAPI}
-          apiConfig={apiConfig}
-          setApiConfig={setApiConfig}
+          // inputText={hybridInput}
+          // setInputText={setHybridInput}
+          // outputText={hybridOutput}
+          // setOutputText={setHybridOutput}
+          // selectedAPI={selectedAPI}
+          // setSelectedAPI={setSelectedAPI}
+          // apiConfig={apiConfig}
+          // setApiConfig={setApiConfig}
         />
       ),
       chat: (
