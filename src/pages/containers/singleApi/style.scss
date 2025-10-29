@@ -13,23 +13,27 @@
     .sidebar {
       width: 280px;
       background: #ffffff;
-      padding: 24px;
-      padding-top: 0px;
-      padding-left: 10px;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
       box-sizing: border-box;
       border-right: 1px solid #e0e0e0;
-      box-shadow: 2px 0 12px rgba(0,0,0,0.06);
-      height: 100%;
-      overflow-y: auto;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
+      height: 100vh;
+
+      .api-config-scroll {
+        flex: 0.9;
+        overflow-y: auto;
+        margin-top: 12px;
+      }
 
       .sidebar-actions {
-        flex-shrink: 0;
-        margin-top: auto;
         display: flex;
         justify-content: flex-end;
+        padding-top: 8px;
+        padding-bottom: 16px;
+        position: sticky;
+        bottom: 0;
       }
     }
 

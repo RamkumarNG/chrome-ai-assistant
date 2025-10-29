@@ -84,7 +84,9 @@ const SingleAPI = () => {
             onChange={handleAPIChange}
           />
 
-          <div className="api-config-container">{renderAPIOptions()}</div>
+          <div className="api-config-scroll">
+            <div className="api-config-container">{renderAPIOptions()}</div>
+          </div>
 
           <div className="sidebar-actions">
             <Button

@@ -15,14 +15,50 @@ import {
 } from "../../constants";
 import { executeHybridWorkflow, useAI } from "../../../hooks/useAI";
 
-const ChatAPI = () => {
+const ChatAPI = (props) => {
   const { loading, progress, error, callAI } = useAI();
-  const [messages, setMessages] = useState([]);
-  const [inputText, setInputText] = useState("");
-  const [selectedAPI, setSelectedAPI] = useState("Proofreader");
-  const [apiConfig, setApiConfig] = useState({});
-  const [attachedImages, setAttachedImages] = useState([]);
-  const [attachedAudios, setAttachedAudios] = useState([]);
+
+  const {
+    messages: propMessages,
+    setMessages: propSetMessages,
+    inputText: propInputText,
+    setInputText: propSetInputText,
+    selectedAPI: propSelectedAPI,
+    setSelectedAPI: propSetSelectedAPI,
+    apiConfig: propApiConfig,
+    setApiConfig: propSetApiConfig,
+    attachedImages: propAttachedImages,
+    setAttachedImages: propSetAttachedImages,
+    attachedAudios: propAttachedAudios,
+    setAttachedAudios: propSetAttachedAudios,
+  } = props || {};
+
+  const [localMessages, setLocalMessages] = useState([]);
+  const [localInputText, setLocalInputText] = useState("");
+  const [localSelectedAPI, setLocalSelectedAPI] = useState("Proofreader");
+  const [localApiConfig, setLocalApiConfig] = useState({});
+  const [localAttachedImages, setLocalAttachedImages] = useState([]);
+  const [localAttachedAudios, setLocalAttachedAudios] = useState([]);
+
+  const messages = propMessages ?? localMessages;
+  const setMessages = propSetMessages ?? setLocalMessages;
+
+  const inputText = propInputText ?? localInputText;
+  const setInputText = propSetInputText ?? setLocalInputText;
+
+  const selectedAPI = propSelectedAPI ?? localSelectedAPI;
+  const setSelectedAPI = propSetSelectedAPI ?? setLocalSelectedAPI;
+
+  const apiConfig = propApiConfig ?? localApiConfig;
+  const setApiConfig = propSetApiConfig ?? setLocalApiConfig;
+
+  const attachedImages = propAttachedImages ?? localAttachedImages;
+  const setAttachedImages = propSetAttachedImages ?? setLocalAttachedImages;
+
+  const attachedAudios = propAttachedAudios ?? localAttachedAudios;
+  const setAttachedAudios = propSetAttachedAudios ?? setLocalAttachedAudios;
+
+  // local-only UI state
   const [copyToast, setCopyToast] = useState(false);
   const [selectedUseCase, setSelectedUseCase] = useState("Default");
   const [hybridWorkflow, setHybridWorkflow] = useState(null);
@@ -39,7 +75,12 @@ const ChatAPI = () => {
     return defaultConfig;
   };
 
-  useEffect(() => setApiConfig(getDefaultConfig(selectedAPI)), [selectedAPI]);
+  useEffect(() => {
+    if (!propApiConfig) {
+      setApiConfig(getDefaultConfig(selectedAPI));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAPI]);
 
   const resizeTextarea = () => {
     if (textareaRef.current) {
@@ -70,7 +111,6 @@ const ChatAPI = () => {
       const selectedTemplate = savedTemplates.find((t) => t.name === templateName);
 
       if (selectedTemplate && Array.isArray(selectedTemplate.workflow)) {
-        console.log("Loaded Hybrid Template:", selectedTemplate.workflow);
         setHybridWorkflow(selectedTemplate.workflow);
         setShowHybrid(true);
         return;
@@ -220,7 +260,9 @@ const ChatAPI = () => {
               value={selectedAPI}
               onChange={handleAPIChange}
             />
-            <div className="api-config-container">{renderAPIOptions()}</div>
+            <div className="api-config-scroll">
+              <div className="api-config-container">{renderAPIOptions()}</div>
+            </div>
             <div className="sidebar-actions">
               <Button
                 className="mode-btn apply-default-btn"
@@ -305,155 +347,149 @@ const ChatAPI = () => {
             </p>
           </div>
         )}
-
-        <div className="chatapi-messages" ref={chatWindowRef}>
-          {messages.length === 0 && <p className="empty-state">Start a conversation...</p>}
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`chat-message ${msg.type}`}
-            >
-              {msg.loading ? (
-                <TextLoading />
-              ) : (
-                <>
-                  {msg.text && <div className="chat-bubble">{msg.text}</div>}
-                  {msg.images &&
-                    msg.images.map((img, i) => (
-                      <img
-                        key={i}
-                        src={URL.createObjectURL(img)}
-                        alt={`preview-${i}`}
-                        className="chat-image"
-                      />
-                  ))}
-                  {msg.audios &&
-                    msg.audios.map((audio, aidx) => (
-                      <div
-                        key={aidx}
-                        className="audio-card"
-                      >
-                        <div className="audio-filename">{audio.name}</div>
-                        <audio controls>
-                          <source src={URL.createObjectURL(audio)} />
-                          Your browser does not support the audio tag.
-                        </audio>
-                      </div>
-                    ))}
-                  {msg.type === "bot" && msg.text && (
-                    <button
-                      className="btn-copy"
-                      onClick={() => handleCopy(msg.text)}
-                    >
-                      <span className="copy-icon">📋</span>
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          ))}
-          {progress !== null && <div className="progress-bar">{progress}%</div>}
-          <Toast message="✅ Copied!" show={copyToast} />
-        </div>
-
-        {attachedImages.length > 0 && (
-          <div className="audio-preview-container">
-            {attachedImages.map((img, index) => (
-              <div key={index} className="audio-card" style={{ width: "120px" }}>
-                <img
-                  src={URL.createObjectURL(img)}
-                  alt={`preview-${index}`}
-                  style={{
-                    width: "100%",
-                    height: "80px",
-                    borderRadius: "10px",
-                    objectFit: "cover",
-                  }}
-                />
-                <button
-                  className="remove-audio-card"
-                  onClick={() => handleRemoveImage(index)}
-                >
-                  X
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {attachedAudios.length > 0 && (
-          <div className="audio-preview-container">
-            {attachedAudios.map((audio, index) => (
+        <div className="chatapi-input-container">
+          <div className="chatapi-messages" ref={chatWindowRef}>
+            {messages.length === 0 && <p className="empty-state">Start a conversation...</p>}
+            {messages.map((msg, idx) => (
               <div
-                key={audio.id}
-                className="audio-card"
+                key={idx}
+                className={`chat-message ${msg.type}`}
               >
-                <div className="audio-filename">{audio.name}</div>
-                <audio controls src={audio.id}></audio>
-                <button
-                  className="remove-audio-card"
-                  onClick={() => handleRemoveAudio(index)}
-                >
-                  X
-                </button>
+                {msg.loading ? (
+                  <TextLoading />
+                ) : (
+                  <>
+                    {msg.text && <div className="chat-bubble">{msg.text}</div>}
+                    {msg.images &&
+                      msg.images.map((img, i) => (
+                        <img
+                          key={i}
+                          src={URL.createObjectURL(img)}
+                          alt={`preview-${i}`}
+                          className="chat-image"
+                        />
+                    ))}
+                    {msg.audios &&
+                      msg.audios.map((audio, aidx) => (
+                        <div
+                          key={aidx}
+                          className="audio-card"
+                        >
+                          <div className="audio-filename">{audio.name}</div>
+                          <audio controls>
+                            <source src={URL.createObjectURL(audio)} />
+                            Your browser does not support the audio tag.
+                          </audio>
+                        </div>
+                      ))}
+                    {msg.type === "bot" && msg.text && (
+                      <button
+                        className="btn-copy"
+                        onClick={() => handleCopy(msg.text)}
+                      >
+                        <span className="copy-icon">📋</span>
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             ))}
-          </div>
-        )}
-
-        <div className="chatapi-input">
-          <label className="btn-plus">
-            <Plus size={20} />
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              style={{ display: "none" }}
-              onChange={handleImageUpload}
-            />
-          </label>
-
-          <label className="btn-plus">
-            <Mic size={20} />
-            <input
-              type="file"
-              accept="audio/*"
-              multiple
-              style={{ display: "none" }}
-              onChange={handleAudioUpload}
-            />
-          </label>
-
-          <div className="input-box">
-            <textarea
-              ref={textareaRef}
-              value={inputText}
-              onChange={(e) => {
-                setInputText(e.target.value);
-                resizeTextarea();
-              }}
-              onKeyPress={(e) => {
-                handleKeyPress(e);
-                textareaRef.current.style.height = "auto";
-              }}
-              placeholder="Type your message..."
-              rows={1}
-            />
+            {progress !== null && <div className="progress-bar">{progress}%</div>}
+            <Toast message="✅ Copied!" show={copyToast} />
           </div>
 
-          <Button
-            className="btn-send"
-            onClick={handleSend}
-            disabled={
-              loading || (!inputText.trim() && !attachedImages && attachedAudios.length === 0)
-            }
-            style={{ marginLeft: "100px" }}
-          >
-            ➤
-          </Button>
+          {[...attachedImages, ...attachedAudios].length > 0 && (
+            <div className="media-preview-container">
+              {[...attachedImages.map((file) => ({ type: "image", file })), 
+                ...attachedAudios.map((file) => ({ type: "audio", file }))
+              ].map((item, index) => (
+                <div key={index} className="media-card">
+                  {item.type === "image" ? (
+                    <img
+                      src={URL.createObjectURL(item.file)}
+                      alt={`preview-${index}`}
+                      className="media-preview-image"
+                    />
+                  ) : (
+                    <div className="media-audio-wrapper">
+                      <div className="media-filename">{item.file.name}</div>
+                      <audio
+                        controls
+                        src={item.file.id ?? URL.createObjectURL(item.file)}
+                        className="media-audio"
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    className="remove-media-card"
+                    onClick={() =>
+                      item.type === "image"
+                        ? handleRemoveImage(attachedImages.indexOf(item.file))
+                        : handleRemoveAudio(attachedAudios.indexOf(item.file))
+                    }
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="chatapi-input">
+            <label className="btn-plus">
+              <Plus size={20} />
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={handleImageUpload}
+              />
+            </label>
+
+            <label className="btn-plus">
+              <Mic size={20} />
+              <input
+                type="file"
+                accept="audio/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={handleAudioUpload}
+              />
+            </label>
+
+            <div className="input-box">
+              <textarea
+                ref={textareaRef}
+                value={inputText}
+                onChange={(e) => {
+                  setInputText(e.target.value);
+                  resizeTextarea();
+                }}
+                onKeyPress={(e) => {
+                  handleKeyPress(e);
+                  textareaRef.current.style.height = "auto";
+                }}
+                placeholder="Type your message..."
+                rows={1}
+              />
+            </div>
+
+            <Button
+              className="btn-send"
+              onClick={handleSend}
+              disabled={
+                loading || (!inputText.trim() && !attachedImages && attachedAudios.length === 0)
+              }
+              style={{ marginLeft: "100px" }}
+            >
+              ➤
+            </Button>
+          </div>
+
+          {error && <p className="error-text">{error}</p>}
         </div>
-
-        {error && <p className="error-text">{error}</p>}
       </main>
     </div>
   );

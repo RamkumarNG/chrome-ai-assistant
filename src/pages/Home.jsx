@@ -3,36 +3,78 @@ import { Button } from "../components";
 import HybridWorkflow from "./containers/hybridApi";
 import SingleAPI from "./containers/singleApi";
 import ChatAPI from "./containers/chatApi";
+import { useGlobalStore } from "../store/GlobalStore";
 
 export default function Home() {
   const [mode, setMode] = useState("chat");
-  const [inputText, setInputText] = useState("");
-  const [outputText, setOutputText] = useState("");
+
+  const {
+    // single workspace
+    singleInput,
+    setSingleInput,
+    singleOutput,
+    setSingleOutput,
+    // hybrid workspace
+    hybridInput,
+    setHybridInput,
+    hybridOutput,
+    setHybridOutput,
+    // chat workspace (persistent)
+    chatInput,
+    setChatInput,
+    messages,
+    setMessages,
+    attachedImages,
+    setAttachedImages,
+    attachedAudios,
+    setAttachedAudios,
+    // shared
+    selectedAPI,
+    setSelectedAPI,
+    apiConfig,
+    setApiConfig,
+  } = useGlobalStore();
 
   const renderMainContent = () => {
     const componentMap = {
       single: (
         <SingleAPI
-          inputText={inputText}
-          setInputText={setInputText}
-          outputText={outputText}
-          setOutputText={setOutputText}
+          inputText={singleInput}
+          setInputText={setSingleInput}
+          outputText={singleOutput}
+          setOutputText={setSingleOutput}
+          selectedAPI={selectedAPI}
+          setSelectedAPI={setSelectedAPI}
+          apiConfig={apiConfig}
+          setApiConfig={setApiConfig}
         />
       ),
       hybrid: (
         <HybridWorkflow
-          inputText={inputText}
-          setInputText={setInputText}
-          outputText={outputText}
-          setOutputText={setOutputText}
+          inputText={hybridInput}
+          setInputText={setHybridInput}
+          outputText={hybridOutput}
+          setOutputText={setHybridOutput}
+          selectedAPI={selectedAPI}
+          setSelectedAPI={setSelectedAPI}
+          apiConfig={apiConfig}
+          setApiConfig={setApiConfig}
         />
       ),
       chat: (
         <ChatAPI
-          inputText={inputText}
-          setInputText={setInputText}
-          outputText={outputText}
-          setOutputText={setOutputText}
+          inputText={chatInput}
+          setInputText={setChatInput}
+          messages={messages}
+          setMessages={setMessages}
+          attachedImages={attachedImages}
+          setAttachedImages={setAttachedImages}
+          attachedAudios={attachedAudios}
+          setAttachedAudios={setAttachedAudios}
+          selectedAPI={selectedAPI}
+          setSelectedAPI={setSelectedAPI}
+          apiConfig={apiConfig}
+          setApiConfig={setApiConfig}
         />
       ),
     };
@@ -43,7 +85,10 @@ export default function Home() {
   return (
     <div className="home-page">
       <div className="navbar">
-        <div className="navbar-left" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <div
+          className="navbar-left"
+          style={{ display: "flex", alignItems: "center", gap: "6px" }}
+        >
           <div className="app-name text-xl font-bold">
             <span className="brand-gradient">Smart</span>Lab
           </div>
@@ -75,9 +120,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="main-content">
-        {renderMainContent()}
-      </div>
+      <div className="main-content">{renderMainContent()}</div>
     </div>
   );
 }
