@@ -1,9 +1,21 @@
+import { useState } from "react";
+
 import Button from "../button";
 import { copyToClipboard } from "../../utils/clipboard";
 import { saveAsFile } from "../../utils/download";
 import TextLoading from "../textLoading";
+import Toast from "../toast";
 
-export default function OutputDisplay({ text, loading, displayOutput = true }) {
+const OutputDisplay = ({ text, loading, displayOutput = true }) => {
+
+  const [showToast, setShowToast] = useState(false);
+
+  const handleCopy = async () => {
+    await copyToClipboard(text);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 1500); // hide after 1.5s
+  };
+  
   return (
     <div className="output-container">
       {displayOutput && <h3>Output:</h3>}
@@ -22,7 +34,7 @@ export default function OutputDisplay({ text, loading, displayOutput = true }) {
       )}
       <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
         <Button
-          onClick={() => copyToClipboard(text)}
+          onClick={handleCopy}
           disabled={!text?.length || loading}
         >
           Copy
@@ -34,6 +46,9 @@ export default function OutputDisplay({ text, loading, displayOutput = true }) {
           Save as .txt
         </Button>
       </div>
+      <Toast message="💾 Template Saved!" show={showToast} bottom="10%" />
     </div>
   );
 }
+
+export default OutputDisplay;

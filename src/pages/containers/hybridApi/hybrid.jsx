@@ -7,6 +7,7 @@ import {
   TextArea,
   TextLoading,
   ImageUploader,
+  Toast,
 } from "../../../components";
 import {
   API_OPTIONS,
@@ -64,6 +65,7 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
   const [selectedStepIndex, setSelectedStepIndex] = useState(null);
   const [intermediateOutputs, setIntermediateOutputs] = useState([]);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   const getDefaultConfig = (api) => {
     const defaultConfig = {};
@@ -108,6 +110,8 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
       createdAt: new Date().toISOString(),
     };
     localStorage.setItem("hybridTemplates", JSON.stringify([...existing, newTemplate]));
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 1500);
     setShowTemplateModal(false);
   };
 
@@ -301,12 +305,12 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
         </div>
       </main>
 
-      {/* Modal for saving templates */}
       <TemplateModal
         isOpen={showTemplateModal}
         onClose={() => setShowTemplateModal(false)}
         onSave={handleSaveTemplate}
       />
+      <Toast message="💾 Template Saved!" show={showToast} />
     </div>
   );
 };

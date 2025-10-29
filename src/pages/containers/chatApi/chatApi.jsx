@@ -5,7 +5,7 @@ import {
   ApiOptionSelector,
   SelectDropdown,
   TextLoading,
-  DownloadLoader,
+  Toast,
 } from "../../../components";
 import {
   API_OPTIONS,
@@ -342,7 +342,7 @@ const ChatAPI = () => {
             </div>
           ))}
           {progress !== null && <div className="progress-bar">{progress}%</div>}
-          {copyToast && <div className="toast">✅ Copied!</div>}
+          <Toast message="✅ Copied!" show={copyToast} />
         </div>
 
         {attachedAudios.length > 0 && (
@@ -435,7 +435,6 @@ const ChatAPI = () => {
         </div>
 
         {error && <p className="error-text">{error}</p>}
-        {progress !== null && <DownloadLoader progress={progress} />}
       </main>
     </div>
   );

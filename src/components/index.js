@@ -6,6 +6,7 @@ import SelectDropdown from "./selectDropdown";
 import TextArea from "./textArea";
 import TextLoading from "./textLoading";
 import Tooltip from "./tooltip";
+import Toast from "./toast";
 import ImageUploader from "./imageUploader";
 
 export {
@@ -18,4 +19,5 @@ export {
   TextLoading,
   Tooltip,
   ImageUploader,
+  Toast,
 }
