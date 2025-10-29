@@ -32,12 +32,67 @@ body {
     z-index: 10;
   }
 
-  .app-name {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: #1e293b;
+  .navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .app-name {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #1e293b;
+
+      .brand-gradient {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+    }
+
+    .powered-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: #1e40af;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      user-select: none;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(59, 130, 246, 0.15);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
+      }
+
+      .chrome-text {
+        background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+        margin-left: 2px;
+        animation: chromePulse 3s ease-in-out infinite;
+      }
+    }
   }
+
+  @keyframes chromePulse {
+    0%, 100% {
+      opacity: 0.9;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+
 
   .brand-gradient {
     background: linear-gradient(135deg, #2563eb, #3b82f6);

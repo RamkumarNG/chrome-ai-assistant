@@ -43,12 +43,14 @@ export default function Home() {
   return (
     <div className="home-page">
       <div className="navbar">
-        <div className="navbar-left">
-          <div className="app-name">
+        <div className="navbar-left" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <div className="app-name text-xl font-bold">
             <span className="brand-gradient">Smart</span>Lab
           </div>
+          <div className="powered-tag">
+            ⚡ Powered by <span className="chrome-text">Chrome AI</span>
+          </div>
         </div>
-
         <div className="navbar-left">
           <div className="mode-selector">
             <Button
