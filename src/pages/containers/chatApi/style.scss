@@ -111,6 +111,20 @@
   align-items: flex-end;
   gap: 10px;
   transition: all 0.3s ease;
+  
+  .api-info-icon {
+    margin-left: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+  }
+
+  .api-info-icon:hover {
+    color: #222;
+  }
+
 }
 
 .chat-message.user {

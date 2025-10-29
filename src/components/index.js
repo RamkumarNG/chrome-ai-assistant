@@ -1,5 +1,6 @@
 import ApiOptionSelector from "./apiOptionSelector";
 import Button from "./button";
+import ConfigPreviewModal from "./configPreviewModal";
 import DownloadLoader from "./downloadLoader";
 import OutputDisplay from "./outputDisplay";
 import SelectDropdown from "./selectDropdown";
@@ -12,6 +13,7 @@ import ImageUploader from "./imageUploader";
 export {
   ApiOptionSelector,
   Button,
+  ConfigPreviewModal,
   DownloadLoader,
   OutputDisplay,
   SelectDropdown,

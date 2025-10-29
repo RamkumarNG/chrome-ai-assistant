@@ -1,5 +1,6 @@
 @use './apiOptionSelector/style.scss' as apiOptionSelector;
 @use './button/style.scss' as button;
+@use './configPreviewModal/style' as configPreviewModal;
 @use './downloadLoader/style.scss' as downloadLoader;
 @use './outputDisplay/style.scss' as outputDisplay;
 @use './selectDropdown/style.scss' as selectDropdown;
@@ -8,3 +9,4 @@
 @use './tooltip/style.scss' as toolTip;
 @use './imageUploader/style.scss' as imageUploader;
 @use './toast/style.scss' as toast;
+

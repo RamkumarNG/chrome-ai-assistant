@@ -59,13 +59,32 @@ const TemplateModal = ({ isOpen, onClose, onSave }) => {
   );
 };
 
-const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) => {
-  const { loading, progress, error, callAI } = useAI();
-  const [workflow, setWorkflow] = useState([]);
+const HybridWorkflow = (props) => {
+
+  const {
+    inputText,
+    setInputText,
+    outputText,
+    setOutputText,
+    workflow: propWorkflow,
+    setWorkflow: propSetWorkflow,
+    intermediateOutputs: propIntermediateOutputs,
+    setIntermediateOutputs: propSetIntermediateOutputs,
+  } = props || {};
+
+  const [localWorkflow, setLocalWorkflow] = useState([]);
+  const workflow = propWorkflow ?? localWorkflow;
+  const setWorkflow = propSetWorkflow ?? setLocalWorkflow;
+
+  const [localIntermediateOutputs, setLocalIntermediateOutputs] = useState([]);
+  const intermediateOutputs = propIntermediateOutputs ?? localIntermediateOutputs;
+  const setIntermediateOutputs = propSetIntermediateOutputs ?? setLocalIntermediateOutputs;
+
   const [selectedStepIndex, setSelectedStepIndex] = useState(null);
-  const [intermediateOutputs, setIntermediateOutputs] = useState([]);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
+
+  const { loading, progress, error, callAI } = useAI();
 
   const getDefaultConfig = (api) => {
     const defaultConfig = {};

@@ -9,6 +9,9 @@ export const GlobalProvider = ({ children }) => {
 
   const [hybridInput, setHybridInput] = useState("");
   const [hybridOutput, setHybridOutput] = useState("");
+  const [hybridIntermediateOutputs, setHybridIntermediateOutputs] = useState([]);
+  const [hybridWorkflow, setHybridWorkflow] = useState([]);
+  
 
   // Chat-specific state — messages + attachments MUST persist across workspace switches
   const [chatInput, setChatInput] = useState("");
@@ -31,6 +34,10 @@ export const GlobalProvider = ({ children }) => {
     setHybridInput,
     hybridOutput,
     setHybridOutput,
+    hybridIntermediateOutputs,
+    setHybridIntermediateOutputs,
+    hybridWorkflow,
+    setHybridWorkflow,
     // chat (persistent)
     chatInput,
     setChatInput,

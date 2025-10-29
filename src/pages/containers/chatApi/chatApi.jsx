@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, Plus, RotateCcw, XCircle, Eye, Workflow  } from "lucide-react";
+import { Mic, Plus, RotateCcw, XCircle, Settings, Workflow  } from "lucide-react";
 import {
   Button,
   ApiOptionSelector,
   SelectDropdown,
   TextLoading,
   Toast,
+  ConfigPreviewModal,
 } from "../../../components";
 import {
   API_OPTIONS,
@@ -39,6 +40,7 @@ const ChatAPI = (props) => {
   const [localApiConfig, setLocalApiConfig] = useState({});
   const [localAttachedImages, setLocalAttachedImages] = useState([]);
   const [localAttachedAudios, setLocalAttachedAudios] = useState([]);
+  const [configModal, setConfigModal] = useState({ show: false, api: "", config: {} });
 
   const messages = propMessages ?? localMessages;
   const setMessages = propSetMessages ?? setLocalMessages;
@@ -154,7 +156,14 @@ const ChatAPI = (props) => {
     resizeTextarea();
     scrollToBottom();
 
-    const loadingMessage = { type: "bot", text: "", loading: true };
+    const loadingMessage = { 
+      type: "bot", 
+      text: "", 
+      loading: true, 
+      api: selectedAPI, 
+      config: apiConfig 
+    };
+
     setMessages((prev) => [...prev, loadingMessage]);
 
     const useCaseContext = USECASE_CONTEXTS[selectedUseCase] || "";
@@ -172,7 +181,12 @@ const ChatAPI = (props) => {
     setMessages((prev) => {
       const updated = [...prev];
       const idx = updated.findIndex((m) => m.loading);
-      if (idx !== -1) updated[idx] = { type: "bot", text: result };
+      if (idx !== -1) updated[idx] = { 
+        type: "bot", 
+        text: result, 
+        api: hybridWorkflow ? "Hybrid Workflow" : selectedAPI,
+        config: hybridWorkflow ? null : apiConfig 
+      };
       return updated;
     });
 
@@ -340,7 +354,7 @@ const ChatAPI = (props) => {
           <div className="modal-overlay" onClick={() => setShowHybrid(false)}>
             <div
               className="modal-content"
-              onClick={(e) => e.stopPropagation()} // prevent close on content click
+              onClick={(e) => e.stopPropagation()}
             >
               <button
                 className="close-template-btn"
@@ -404,12 +418,27 @@ const ChatAPI = (props) => {
                         </div>
                       ))}
                     {msg.type === "bot" && msg.text && (
-                      <button
-                        className="btn-copy"
-                        onClick={() => handleCopy(msg.text)}
-                      >
-                        <span className="copy-icon">📋</span>
-                      </button>
+                      <div className="message-actions" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <button
+                          className="btn-copy"
+                          onClick={() => handleCopy(msg.text)}
+                          title="Copy message"
+                          style={{ border: "none", background: "transparent", cursor: "pointer" }}
+                        >
+                          📋
+                        </button>
+
+                        {msg.config && (
+                          <button
+                            className="btn-config"
+                            title={`View ${msg.api} Config`}
+                            onClick={() => setConfigModal({ show: true, api: msg.api, config: msg.config })}
+                            style={{ border: "none", background: "transparent", cursor: "pointer" }}
+                          >
+                            <Settings size={16} color="#444" />
+                          </button>
+                        )}
+                      </div>
                     )}
                   </>
                 )}
@@ -512,6 +541,13 @@ const ChatAPI = (props) => {
           {error && <p className="error-text">{error}</p>}
         </div>
       </main>
+      <ConfigPreviewModal
+        isOpen={configModal.show}
+        apiName={configModal.api}
+        config={configModal.config}
+        onClose={() => setConfigModal({ show: false, api: "", config: {} })}
+      />
+
     </div>
   );
 };

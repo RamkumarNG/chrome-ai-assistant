@@ -19,6 +19,10 @@ export default function Home() {
     setHybridInput,
     hybridOutput,
     setHybridOutput,
+    hybridWorkflow,
+    setHybridWorkflow,
+    hybridIntermediateOutputs,
+    setHybridIntermediateOutputs,
     // chat workspace (persistent)
     chatInput,
     setChatInput,
@@ -51,14 +55,18 @@ export default function Home() {
       ),
       hybrid: (
         <HybridWorkflow
-          // inputText={hybridInput}
-          // setInputText={setHybridInput}
-          // outputText={hybridOutput}
-          // setOutputText={setHybridOutput}
-          // selectedAPI={selectedAPI}
-          // setSelectedAPI={setSelectedAPI}
-          // apiConfig={apiConfig}
-          // setApiConfig={setApiConfig}
+          inputText={hybridInput}
+          setInputText={setHybridInput}
+          outputText={hybridOutput}
+          setOutputText={setHybridOutput}
+          intermediateOutputs={hybridIntermediateOutputs}
+          setIntermediateOutputs={setHybridIntermediateOutputs}
+          workflow={hybridWorkflow}
+          setWorkflow={setHybridWorkflow}
+          selectedAPI={selectedAPI}
+          setSelectedAPI={setSelectedAPI}
+          apiConfig={apiConfig}
+          setApiConfig={setApiConfig}
         />
       ),
       chat: (
