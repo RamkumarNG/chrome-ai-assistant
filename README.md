@@ -1,70 +1,61 @@
-# Getting Started with Create React App
+# Chrome AI Chat Assistant (SmartLab)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Lightweight multi-workspace assistant that demonstrates three workflows:
+- Smart Chat — conversational assistant with persistent chat messages across workspace switches ([src/pages/containers/chatApi/chatApi.jsx](src/pages/containers/chatApi/chatApi.jsx)).
+- Smart Chain — compose and run multi-step hybrid workflows ([src/pages/containers/hybridApi/hybrid.jsx](src/pages/containers/hybridApi/hybrid.jsx)).
+- Smart Prompt — single-step prompts (summarize, rewrite, translate, proofread) ([src/pages/containers/singleApi/singleApi.jsx](src/pages/containers/singleApi/singleApi.jsx)).
 
-## Available Scripts
+Overview
+- Built with React + SCSS.
+- AI integration and multimodal support via Firebase AI / Gemini (see [src/firebaseconifg.js](src/firebaseconifg.js) and the central hook [src/hooks/useAI.js](src/hooks/useAI.js)).
+- Global application state uses a React Context provider: [src/store/GlobalStore.jsx](src/store/GlobalStore.jsx). Chat messages and attachments persist when switching workspaces.
 
-In the project directory, you can run:
+Key files
+- App entry: [src/App.jsx](src/App.jsx)  
+- Home (workspace switcher): [src/pages/Home.jsx](src/pages/Home.jsx)  
+- Chat UI: [src/pages/containers/chatApi/chatApi.jsx](src/pages/containers/chatApi/chatApi.jsx)  
+- Hybrid (workflow) UI: [src/pages/containers/hybridApi/hybrid.jsx](src/pages/containers/hybridApi/hybrid.jsx)  
+- Single prompt UI: [src/pages/containers/singleApi/singleApi.jsx](src/pages/containers/singleApi/singleApi.jsx)  
+- Styling: [src/App.scss](src/App.scss), [src/pages/containers/chatApi/style.scss](src/pages/containers/chatApi/style.scss) and other component scss files.  
+- AI logic: [src/hooks/useAI.js](src/hooks/useAI.js)
 
-### `npm start`
+Tech stack
+- JavaScript (ESNext) + React (functional components + hooks)
+- SCSS (Sass)
+- Firebase AI / GenerativeModel (Gemini usage in firebase config)
+- Browser APIs: File, Clipboard
+- localStorage used for templates
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Getting started (macOS)
+1. Install dependencies
+   - npm
+     - npm ci
+   - or yarn
+     - yarn
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. Create .env with firebase key
+   - REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
 
-### `npm test`
+3. Run dev server
+   - npm start
+   - or yarn start
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. Build
+   - npm run build
+   - or yarn build
 
-### `npm run build`
+Notes & developer tips
+- Chat messages are intentionally stored in the global store so they persist between workspace switches. See [src/store/GlobalStore.jsx](src/store/GlobalStore.jsx).
+- If scroll or overflow issues appear in flex layouts, verify child containers use `min-height: 0` and `overflow: auto` (fixes in [src/pages/containers/chatApi/style.scss](src/pages/containers/chatApi/style.scss) and [src/App.scss](src/App.scss)).
+- Hybrid workflows serialize to localStorage under `hybridTemplates` for reuse.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+How it works (short)
+- UI components call the centralized hook [`useAI`](src/hooks/useAI.js) to invoke selected API classes. For hybrid workflows, `executeHybridWorkflow` runs each step sequentially and collects intermediate outputs.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Troubleshooting
+- Blank responses from AI: ensure Firebase API key/env and GoogleAI backend availability.
+- Large file attachments: browser memory limits apply; files are converted to base64 in [src/hooks/useAI.js](src/hooks/useAI.js) before sending to the model.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Contributing
+- Open an issue for behavior/bug reports.
+- For UI or logic changes, prefer small PRs focusing on a single workspace or the shared store.
