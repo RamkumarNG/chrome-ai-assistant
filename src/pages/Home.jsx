@@ -42,30 +42,34 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      {/* Navbar */}
       <div className="navbar">
-        <div className="app-name">AI Chat Assistant</div>
+        <div className="navbar-left">
+          <div className="app-name">
+            <span className="brand-gradient">Smart</span>Lab
+          </div>
+        </div>
 
-        <div className="mode-selector">
-          <Button
-            className={mode === "single" ? "btn-primary" : "btn-secondary"}
-            onClick={() => setMode("single")}
-          >
-            Single API
-          </Button>
-
-          <Button
-            className={mode === "hybrid" ? "btn-primary" : "btn-secondary"}
-            onClick={() => setMode("hybrid")}
-          >
-            Hybrid Workflow
-          </Button>
-          <Button
-            className={mode === "chat" ? "btn-primary" : "btn-secondary"}
-            onClick={() => setMode("chat")}
-          >
-            Chat API
-          </Button>
+        <div className="navbar-left">
+          <div className="mode-selector">
+            <Button
+              className={mode === "single" ? "mode-btn active" : "mode-btn"}
+              onClick={() => setMode("single")}
+            >
+              Smart Prompt
+            </Button>
+            <Button
+              className={mode === "hybrid" ? "mode-btn active" : "mode-btn"}
+              onClick={() => setMode("hybrid")}
+            >
+              Smart Chain
+            </Button>
+            <Button
+              className={mode === "chat" ? "mode-btn active" : "mode-btn"}
+              onClick={() => setMode("chat")}
+            >
+              Smart Chat
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Mic, Plus, RotateCcw, XCircle } from "lucide-react";
+
 import {
   Button,
   ApiOptionSelector,
@@ -8,7 +10,6 @@ import {
 } from "../../../components";
 import { API_OPTIONS, API_CONFIGS, API_KEY_LABELS } from "../../constants";
 import { useAI } from "../../../hooks/useAI";
-import { Mic, Plus, XCircle } from "lucide-react";
 
 const ChatAPI = () => {
   const { loading, progress, error, callAI } = useAI();
@@ -120,6 +121,10 @@ const ChatAPI = () => {
     setAttachedAudios((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleClearAll = () => {
+    setApiConfig(getDefaultConfig(selectedAPI));
+  };
+
   const renderAPIOptions = () => {
     const config = API_CONFIGS[selectedAPI] || {};
     return Object.entries(config).map(([key, { options, multi, tooltipContent }]) => {
@@ -140,26 +145,49 @@ const ChatAPI = () => {
 
   return (
     <div className="chatapi-layout">
-      <aside className="chatapi-sidebar">
-        <div className="sidebar-scroll">
+      <div className="content">
+        <div className="sidebar">
           <SelectDropdown
             label="Select API"
             options={API_OPTIONS}
             value={selectedAPI}
             onChange={handleAPIChange}
           />
-          <div className="api-configs">{renderAPIOptions()}</div>
+          <div className="api-config-container">{renderAPIOptions()}</div>
+          <div className="sidebar-actions">
+            <Button
+              className="mode-btn apply-default-btn"
+              style={{
+                display: "flex",
+                gap: "8px"
+              }}
+              onClick={handleClearAll}
+              disabled={loading}
+            >
+              <RotateCcw
+                size={15}
+                className="icon"
+              />
+              Apply Default Settings
+            </Button>
+          </div>
         </div>
-      </aside>
+      </div>
 
       <main className="chatapi-main">
-        <div className="chatapi-messages" ref={chatWindowRef}>
+        <div
+          className="chatapi-messages"
+          ref={chatWindowRef}
+        >
           {messages.length === 0 && (
             <p className="empty-state">Start a conversation...</p>
           )}
 
           {messages.map((msg, idx) => (
-            <div key={idx} className={`chat-message ${msg.type}`}>
+            <div
+              key={idx}
+              className={`chat-message ${msg.type}`}
+            >
               {msg.loading ? (
                 <TextLoading />
               ) : (
@@ -174,7 +202,10 @@ const ChatAPI = () => {
                   )}
                   {msg.audios &&
                     msg.audios.map((audio, aidx) => (
-                      <div key={aidx} className="audio-card">
+                      <div
+                        key={aidx}
+                        className="audio-card"
+                      >
                         <div className="audio-filename">{audio.name}</div>
                         <audio controls>
                           <source src={URL.createObjectURL(audio)} />
@@ -183,7 +214,10 @@ const ChatAPI = () => {
                       </div>
                     ))}
                   {msg.type === "bot" && msg.text && (
-                    <button className="btn-copy" onClick={() => handleCopy(msg.text)}>
+                    <button
+                      className="btn-copy"
+                      onClick={() => handleCopy(msg.text)}
+                    >
                       <span className="copy-icon">📋</span>
                     </button>
                   )}
@@ -196,11 +230,13 @@ const ChatAPI = () => {
           {copyToast && <div className="toast">✅ Copied!</div>}
         </div>
 
-        {/* ✅ Floating multiple audio cards (side-by-side with filename) */}
         {attachedAudios.length > 0 && (
           <div className="audio-preview-container">
             {attachedAudios.map((audio, index) => (
-              <div key={audio.id} className="audio-card">
+              <div
+                key={audio.id}
+                className="audio-card"
+              >
                 <div className="audio-filename">{audio.name}</div>
                 <audio controls src={audio.id}></audio>
                 <button
@@ -245,7 +281,10 @@ const ChatAPI = () => {
                 setInputText(e.target.value);
                 resizeTextarea();
               }}
-              onKeyPress={handleKeyPress}
+              onKeyPress={(e) => {
+                handleKeyPress(e);
+                textareaRef.current.style.height = "auto";
+              }}
               placeholder="Type your message..."
               rows={1}
             />

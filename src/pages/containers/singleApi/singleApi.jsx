@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { RotateCcw } from "lucide-react";
+
 import {
   TextArea,
   OutputDisplay,
@@ -86,11 +88,19 @@ const SingleAPI = () => {
 
           <div className="sidebar-actions">
             <Button
-              className="btn-secondary"
+              className="mode-btn apply-default-btn"
+              style={{
+                display: "flex",
+                gap: "8px"
+              }}
               onClick={handleClearAll}
               disabled={loading}
             >
-              🔄 Clear All Configs
+              <RotateCcw
+                size={15}
+                className="icon"
+              />
+              Apply Default Settings
             </Button>
           </div>
         </div>

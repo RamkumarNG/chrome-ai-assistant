@@ -7,7 +7,7 @@
   display: block;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #1e3a8a;
+  color: black;
 }
 
 .dropdown-header {
@@ -23,17 +23,17 @@
 }
 
 .dropdown-header:hover {
-  border-color: #1e3a8a;
+  border-color: black;
 }
 
 .dropdown-header.open {
-  border-color: #1e3a8a;
+  border-color: black;
   box-shadow: 0 4px 12px rgba(0,123,255,0.15);
 }
 
 .arrow {
   font-size: 12px;
-  color: #1e3a8a;
+  color: black;
 }
 
 .dropdown-list {
@@ -75,7 +75,7 @@
 }
 
 .dropdown-item.active {
-  background: #1e3a8a;
+  background: black;
   color: #fff;
 }
 

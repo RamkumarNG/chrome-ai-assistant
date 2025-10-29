@@ -92,56 +92,55 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
   };
 
   const renderConfigPanel = () => {
-  if (selectedStepIndex === null || selectedStepIndex >= workflow.length) {
-    return <p className="empty-config">Select a step to configure</p>;
-  }
+    if (selectedStepIndex === null || selectedStepIndex >= workflow.length) {
+      return <p className="empty-config">Select a step to configure</p>;
+    }
 
-  const step = workflow[selectedStepIndex];
-  const config = API_CONFIGS[step.api] || {};
+    const step = workflow[selectedStepIndex];
+    const config = API_CONFIGS[step.api] || {};
+
+    return (
+      <div className="config-panel">
+        <h4>{step.api} Settings</h4>
+
+        {/* Render all API config options */}
+        {Object.entries(config).map(([key, { options, multi, tooltipContent }]) => {
+          const label = API_KEY_LABELS[key] || key;
+          return (
+            <ApiOptionSelector
+              key={key}
+              configKey={label}
+              options={options}
+              selectedValue={step.config[key]}
+              onChange={(val) =>
+                updateStepConfig(selectedStepIndex, { ...step.config, [key]: val })
+              }
+              multi={multi}
+              tooltipContent={tooltipContent}
+            />
+          );
+        })}
+
+        {/* If step is multimodal, show image uploader */}
+        {step.api.toLowerCase() === "multimodal" && (
+          <div className="image-upload-section">
+            <h5>Upload Image (optional)</h5>
+            <ImageUploader
+              selectedImage={step.imageFile || null}
+              onChange={(file) => {
+                const newWorkflow = [...workflow];
+                newWorkflow[selectedStepIndex].imageFile = file;
+                setWorkflow(newWorkflow);
+              }}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="config-panel">
-      <h4>{step.api} Settings</h4>
-
-      {/* Render all API config options */}
-      {Object.entries(config).map(([key, { options, multi, tooltipContent }]) => {
-        const label = API_KEY_LABELS[key] || key;
-        return (
-          <ApiOptionSelector
-            key={key}
-            configKey={label}
-            options={options}
-            selectedValue={step.config[key]}
-            onChange={(val) =>
-              updateStepConfig(selectedStepIndex, { ...step.config, [key]: val })
-            }
-            multi={multi}
-            tooltipContent={tooltipContent}
-          />
-        );
-      })}
-
-      {/* If step is multimodal, show image uploader */}
-      {step.api.toLowerCase() === "multimodal" && (
-        <div className="image-upload-section">
-          <h5>Upload Image (optional)</h5>
-          <ImageUploader
-            selectedImage={step.imageFile || null}
-            onChange={(file) => {
-              const newWorkflow = [...workflow];
-              newWorkflow[selectedStepIndex].imageFile = file;
-              setWorkflow(newWorkflow);
-            }}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
-
-  return (
-    <div className="hybrid-wrapper">
+    <div className="hybrid-wrapper dark-mode">
       <aside className="sidebar">
         <h3>Available APIs</h3>
         <div className="api-list">

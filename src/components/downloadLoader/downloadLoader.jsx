@@ -1,4 +1,4 @@
-export default function DownloadLoader({ progress }) {
+const DownloadLoader = ({ progress }) => {
   const radius = 60;
   const stroke = 8;
   const normalizedRadius = radius - stroke * 2;
@@ -45,3 +45,5 @@ export default function DownloadLoader({ progress }) {
     </div>
   );
 }
+
+export default DownloadLoader;

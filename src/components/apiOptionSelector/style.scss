@@ -3,14 +3,14 @@
   padding: 12px;
   border-radius: 10px;
   background: #f8f9fb;
-  border-left: 4px solid #1e3a8a;
+  border-left: 4px solid black;
 }
 
 .api-config-card h4 {
   margin: 0 0 8px 0;
   font-weight: 600;
   font-size: 14px;
-  color: #1e3a8a;
+  color: black;
 }
 
 .chip-container {
@@ -31,13 +31,13 @@
 
 .chip:hover {
   background: #e0f0ff;
-  border-color: #1e3a8a;
+  border-color: black;
 }
 
 .chip.active {
-  background: #1e3a8a;;
+  background: black;;
   color: #fff;
-  border-color: #1e3a8a;
+  border-color: black;
 }
 
 .tooltip-wrapper {
