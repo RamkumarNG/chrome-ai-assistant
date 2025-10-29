@@ -13,23 +13,49 @@ import {
   API_CONFIGS,
   API_KEY_LABELS,
 } from "../../constants";
-import { useAI } from "../../../hooks/useAI";
+import { executeHybridWorkflow, useAI } from "../../../hooks/useAI";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Save, XCircle } from "lucide-react";
 
-// Executes workflow in order
-const executeHybridWorkflow = async (inputText, workflow, callAI, setIntermediateOutputs) => {
-  let currentText = inputText;
-  const outputs = [];
+const TemplateModal = ({ isOpen, onClose, onSave }) => {
+  const [templateName, setTemplateName] = useState("");
 
-  for (const step of workflow) {
-    // pass step.imageFile along with config
-    currentText = await callAI(step.api, currentText, step.config, step.imageFile);
-    outputs.push({ api: step.api, text: currentText });
-    setIntermediateOutputs([...outputs]);
-  }
+  if (!isOpen) return null;
 
-  return currentText;
+  const handleSave = () => {
+    if (!templateName.trim()) return;
+    onSave(templateName);
+    setTemplateName("");
+  };
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <Save size={22} />
+          <h3>Save Template</h3>
+          <button className="close-btn" onClick={onClose}>
+            <XCircle size={20} />
+          </button>
+        </div>
+        <p className="modal-desc">Give your workflow a clear and memorable name.</p>
+        <input
+          className="modal-input"
+          placeholder="e.g. Blog Summary Workflow"
+          value={templateName}
+          onChange={(e) => setTemplateName(e.target.value)}
+        />
+        <div className="modal-actions">
+          <Button className="btn-secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button className="btn-primary" onClick={handleSave}>
+            Save Template
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) => {
@@ -37,6 +63,7 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
   const [workflow, setWorkflow] = useState([]);
   const [selectedStepIndex, setSelectedStepIndex] = useState(null);
   const [intermediateOutputs, setIntermediateOutputs] = useState([]);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   const getDefaultConfig = (api) => {
     const defaultConfig = {};
@@ -73,6 +100,17 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
     setOutputText("");
   };
 
+  const handleSaveTemplate = (name) => {
+    const existing = JSON.parse(localStorage.getItem("hybridTemplates") || "[]");
+    const newTemplate = {
+      name,
+      workflow,
+      createdAt: new Date().toISOString(),
+    };
+    localStorage.setItem("hybridTemplates", JSON.stringify([...existing, newTemplate]));
+    setShowTemplateModal(false);
+  };
+
   const handleRunHybrid = async () => {
     setOutputText("");
     setIntermediateOutputs([]);
@@ -80,14 +118,11 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
     setOutputText(result);
   };
 
-  // Drag-and-drop handler
   const onDragEnd = (result) => {
     if (!result.destination) return;
-
     const newWorkflow = Array.from(workflow);
     const [moved] = newWorkflow.splice(result.source.index, 1);
     newWorkflow.splice(result.destination.index, 0, moved);
-
     setWorkflow(newWorkflow);
   };
 
@@ -102,8 +137,6 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
     return (
       <div className="config-panel">
         <h4>{step.api} Settings</h4>
-
-        {/* Render all API config options */}
         {Object.entries(config).map(([key, { options, multi, tooltipContent }]) => {
           const label = API_KEY_LABELS[key] || key;
           return (
@@ -120,8 +153,6 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
             />
           );
         })}
-
-        {/* If step is multimodal, show image uploader */}
         {step.api.toLowerCase() === "multimodal" && (
           <div className="image-upload-section">
             <h5>Upload Image (optional)</h5>
@@ -172,8 +203,19 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
               >
                 🚀 Run Workflow
               </Button>
-              <Button className="btn-secondary" onClick={handleClear} disabled={loading}>
+              <Button
+                className="btn-secondary"
+                onClick={handleClear}
+                disabled={loading}
+              >
                 🧹 Clear
+              </Button>
+              <Button
+                className="btn-tertiary"
+                onClick={() => setShowTemplateModal(true)}
+                disabled={workflow.length === 0}
+              >
+                💾 Save as Template
               </Button>
             </div>
             {error && <p className="error-text">{error}</p>}
@@ -186,7 +228,11 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="workflow" direction="horizontal">
               {(provided) => (
-                <div className="workflow-visual" ref={provided.innerRef} {...provided.droppableProps}>
+                <div
+                  className="workflow-visual"
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
                   {workflow.length === 0 ? (
                     <p className="empty-text">Select APIs from the left panel</p>
                   ) : (
@@ -198,7 +244,9 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`workflow-node ${selectedStepIndex === index ? "selected" : ""}`}
+                              className={`workflow-node ${
+                                selectedStepIndex === index ? "selected" : ""
+                              }`}
                               onClick={() => setSelectedStepIndex(index)}
                             >
                               <span>{step.api}</span>
@@ -247,17 +295,20 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
 
             <div className="card">
               <h4>Final Output</h4>
-              <OutputDisplay
-                text={outputText}
-                loading={loading}
-                displayOutput={false}
-              />
+              <OutputDisplay text={outputText} loading={loading} displayOutput={false} />
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modal for saving templates */}
+      <TemplateModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        onSave={handleSaveTemplate}
+      />
     </div>
   );
-}
+};
 
 export default HybridWorkflow;

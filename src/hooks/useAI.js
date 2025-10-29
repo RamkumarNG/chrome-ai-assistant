@@ -126,6 +126,22 @@ export function useAI() {
   return { loading, progress, error, callAI };
 }
 
+export const executeHybridWorkflow = async (inputText, workflow, callAI, setIntermediateOutputs = null) => {
+  let currentText = inputText;
+  const outputs = [];
+
+  for (const step of workflow) {
+    // pass step.imageFile along with config
+    currentText = await callAI(step.api, currentText, step.config, step.imageFile);
+    outputs.push({ api: step.api, text: currentText });
+    if (setIntermediateOutputs) {
+      setIntermediateOutputs([...outputs]);
+    }
+  }
+
+  return currentText;
+};
+
 async function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -134,3 +150,4 @@ async function fileToBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+

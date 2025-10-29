@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Mic, Plus, RotateCcw, XCircle } from "lucide-react";
-
 import {
   Button,
   ApiOptionSelector,
@@ -8,8 +7,13 @@ import {
   TextLoading,
   DownloadLoader,
 } from "../../../components";
-import { API_OPTIONS, API_CONFIGS, API_KEY_LABELS } from "../../constants";
-import { useAI } from "../../../hooks/useAI";
+import {
+  API_OPTIONS,
+  API_CONFIGS,
+  API_KEY_LABELS,
+  USECASE_CONTEXTS,
+} from "../../constants";
+import { executeHybridWorkflow, useAI } from "../../../hooks/useAI";
 
 const ChatAPI = () => {
   const { loading, progress, error, callAI } = useAI();
@@ -18,8 +22,11 @@ const ChatAPI = () => {
   const [selectedAPI, setSelectedAPI] = useState("Proofreader");
   const [apiConfig, setApiConfig] = useState({});
   const [attachedImage, setAttachedImage] = useState(null);
-  const [attachedAudios, setAttachedAudios] = useState([]); // ✅ multiple audios
+  const [attachedAudios, setAttachedAudios] = useState([]);
   const [copyToast, setCopyToast] = useState(false);
+  const [selectedUseCase, setSelectedUseCase] = useState("Default");
+  const [hybridWorkflow, setHybridWorkflow] = useState(null);
+  const [showHybrid, setShowHybrid] = useState(false);
 
   const chatWindowRef = useRef(null);
   const textareaRef = useRef(null);
@@ -53,6 +60,47 @@ const ChatAPI = () => {
 
   useEffect(() => scrollToBottom(), [messages]);
 
+  const handleUseCaseChange = (e) => {
+    const useCase = e.target.value;
+    setSelectedUseCase(useCase);
+
+    if (useCase.startsWith("template:")) {
+      const templateName = useCase.replace("template:", "");
+      const savedTemplates = JSON.parse(localStorage.getItem("hybridTemplates") || "[]");
+      const selectedTemplate = savedTemplates.find((t) => t.name === templateName);
+
+      if (selectedTemplate && Array.isArray(selectedTemplate.workflow)) {
+        console.log("Loaded Hybrid Template:", selectedTemplate.workflow);
+        setHybridWorkflow(selectedTemplate.workflow);
+        setShowHybrid(true);
+        return;
+      }
+    }
+
+    setHybridWorkflow(null);
+    setShowHybrid(false);
+    switch (useCase) {
+      case "Email Improve":
+        setSelectedAPI("Proofreader");
+        break;
+      case "Simplify Text":
+        setSelectedAPI("Rewriter");
+        break;
+      case "Summarize":
+        setSelectedAPI("Summarizer");
+        break;
+      case "Translate to English":
+        setSelectedAPI("Translator");
+        break;
+      case "Polite Reply":
+        setSelectedAPI("Writer");
+        break;
+      default:
+        setSelectedAPI("Proofreader");
+        break;
+    }
+  };
+
   const handleSend = async () => {
     if (!inputText.trim() && !attachedImage && attachedAudios.length === 0) return;
 
@@ -62,7 +110,6 @@ const ChatAPI = () => {
       image: attachedImage,
       audios: attachedAudios,
     };
-
     setMessages((prev) => [...prev, userMessage]);
     setInputText("");
     setAttachedImage(null);
@@ -73,13 +120,17 @@ const ChatAPI = () => {
     const loadingMessage = { type: "bot", text: "", loading: true };
     setMessages((prev) => [...prev, loadingMessage]);
 
-    const result = await callAI(
-      selectedAPI,
-      userMessage.text,
-      apiConfig,
-      userMessage.image,
-      userMessage.audios
-    );
+    const useCaseContext = USECASE_CONTEXTS[selectedUseCase] || "";
+    const contextualInput = useCaseContext
+      ? `${useCaseContext}\n\nUser Input:\n${inputText}`
+      : inputText;
+
+    let result;
+    if (hybridWorkflow) {
+      result = await executeHybridWorkflow(contextualInput, hybridWorkflow, callAI);
+    } else {
+      result = await callAI(selectedAPI, contextualInput, apiConfig, attachedImage, attachedAudios);
+    }
 
     setMessages((prev) => {
       const updated = [...prev];
@@ -146,43 +197,108 @@ const ChatAPI = () => {
   return (
     <div className="chatapi-layout">
       <div className="content">
-        <div className="sidebar">
-          <SelectDropdown
-            label="Select API"
-            options={API_OPTIONS}
-            value={selectedAPI}
-            onChange={handleAPIChange}
-          />
-          <div className="api-config-container">{renderAPIOptions()}</div>
-          <div className="sidebar-actions">
-            <Button
-              className="mode-btn apply-default-btn"
-              style={{
-                display: "flex",
-                gap: "8px"
-              }}
-              onClick={handleClearAll}
-              disabled={loading}
-            >
-              <RotateCcw
-                size={15}
-                className="icon"
-              />
-              Apply Default Settings
-            </Button>
+        {hybridWorkflow ? (
+          <div className="sidebar hybrid-mode">
+            <p style={{ fontStyle: "italic", color: "#888", margin: "12px" }}>
+              ⚙️ Hybrid template in use — configs auto-applied.
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="sidebar">
+            <SelectDropdown
+              label="Select API"
+              options={API_OPTIONS}
+              value={selectedAPI}
+              onChange={handleAPIChange}
+            />
+            <div className="api-config-container">{renderAPIOptions()}</div>
+            <div className="sidebar-actions">
+              <Button
+                className="mode-btn apply-default-btn"
+                style={{ display: "flex", gap: "8px" }}
+                onClick={handleClearAll}
+                disabled={loading}
+              >
+                <RotateCcw
+                  size={15}
+                  className="icon"
+                />
+                Apply Default Settings
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       <main className="chatapi-main">
-        <div
-          className="chatapi-messages"
-          ref={chatWindowRef}
-        >
-          {messages.length === 0 && (
-            <p className="empty-state">Start a conversation...</p>
-          )}
+        <div className="usecase-selector" style={{ margin: "10px 0", textAlign: "center" }}>
+          <label style={{ fontWeight: "600", marginRight: "8px" }}>Use Case:</label>
+          <select
+            value={selectedUseCase}
+            onChange={handleUseCaseChange}
+            className="usecase-dropdown"
+            style={{
+              padding: "6px 10px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              fontSize: "14px",
+            }}
+          >
+            <option value="Default">Default</option>
+            <option value="Email Improve">✉️ Improve My Email</option>
+            <option value="Simplify Text">🧑‍🎓 Simplify My Text</option>
+            <option value="Summarize">📰 Summarize This</option>
+            <option value="Translate to English">🌍 Translate to English</option>
+            <option value="Polite Reply">💬 Polite Response</option>
+            <option disabled>──────────────</option>
+            {(() => {
+              const saved = JSON.parse(localStorage.getItem("hybridTemplates") || "[]");
+              return saved.length > 0 ? (
+                <>
+                  <option disabled>💾 Saved Templates</option>
+                  {saved.map((t) => (
+                    <option key={t.name} value={`template:${t.name}`}>
+                      📁 {t.name}
+                    </option>
+                  ))}
+                </>
+              ) : (
+                <option disabled>No Templates Saved</option>
+              );
+            })()}
+          </select>
+        </div>
 
+        {showHybrid && (
+          <div className="template-preview-container">
+            <button
+              className="close-template-btn"
+              onClick={() => setShowHybrid(null)}
+              title="Close Template"
+            >
+              <XCircle size={20} />
+            </button>
+
+            <h4>🚀 Hybrid Workflow Preview</h4>
+
+            <div className="workflow-preview">
+              {hybridWorkflow.map((step, index) => (
+                <React.Fragment key={index}>
+                  <div className="workflow-node-readonly">{step.api}</div>
+                  {index < hybridWorkflow.length - 1 && <span className="workflow-arrow">→</span>}
+                </React.Fragment>
+              ))}
+            </div>
+
+            <p className="template-preview-note">
+              This template is in read-only mode. You can run it directly or create a new workflow
+              from Hybrid Workspace.
+            </p>
+          </div>
+        )}
+
+        <div className="chatapi-messages" ref={chatWindowRef}>
+          {messages.length === 0 && <p className="empty-state">Start a conversation...</p>}
           {messages.map((msg, idx) => (
             <div
               key={idx}
@@ -225,7 +341,6 @@ const ChatAPI = () => {
               )}
             </div>
           ))}
-
           {progress !== null && <div className="progress-bar">{progress}%</div>}
           {copyToast && <div className="toast">✅ Copied!</div>}
         </div>
@@ -243,7 +358,7 @@ const ChatAPI = () => {
                   className="remove-audio-card"
                   onClick={() => handleRemoveAudio(index)}
                 >
-                  <XCircle size={20} />
+                  X
                 </button>
               </div>
             ))}
@@ -310,7 +425,9 @@ const ChatAPI = () => {
           <Button
             className="btn-send"
             onClick={handleSend}
-            disabled={loading || (!inputText.trim() && !attachedImage && attachedAudios.length === 0)}
+            disabled={
+              loading || (!inputText.trim() && !attachedImage && attachedAudios.length === 0)
+            }
             style={{ marginLeft: "100px" }}
           >
             ➤

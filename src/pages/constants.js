@@ -188,3 +188,12 @@ export const API_CONFIGS = {
     }
   },
 };
+
+export const USECASE_CONTEXTS = {
+  "Email Improve": "Improve this email for clarity, tone, and professionalism.",
+  "Simplify Text": "Simplify this text to a middle-school reading level.",
+  "Summarize": "Summarize the content concisely in 3 short bullet points.",
+  "Translate to English": "Translate the following text into English, keeping natural phrasing.",
+  "Polite Reply": "Generate a polite and friendly reply based on this input.",
+  "Default": "",
+};
