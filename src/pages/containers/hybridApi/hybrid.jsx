@@ -3,10 +3,10 @@ import {
   OutputDisplay,
   Button,
   ApiOptionSelector,
-  DownloadLoader,
   TextArea,
   TextLoading,
   ImageUploader,
+  DownloadLoader,
   Toast,
 } from "../../../components";
 import {
@@ -227,7 +227,7 @@ const HybridWorkflow = ({ inputText, setInputText, outputText, setOutputText }) 
         </div>
 
         <div className="middle-section">
-          {progress !== null && <DownloadLoader progress={progress} />}
+          {progress !== null && progress !== 0 && <DownloadLoader progress={progress} />}
 
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="workflow" direction="horizontal">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Mic, Plus, RotateCcw, XCircle } from "lucide-react";
+import { Mic, Plus, RotateCcw, XCircle, Eye, Workflow  } from "lucide-react";
 import {
   Button,
   ApiOptionSelector,
@@ -76,9 +76,7 @@ const ChatAPI = (props) => {
   };
 
   useEffect(() => {
-    if (!propApiConfig) {
-      setApiConfig(getDefaultConfig(selectedAPI));
-    }
+    setApiConfig(getDefaultConfig(selectedAPI));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAPI]);
 
@@ -282,7 +280,16 @@ const ChatAPI = (props) => {
       </div>
 
       <main className="chatapi-main">
-        <div className="usecase-selector" style={{ margin: "10px 0", textAlign: "center" }}>
+        <div
+          className="usecase-selector"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px",
+            margin: "10px 0",
+          }}
+        >
           <label style={{ fontWeight: "600", marginRight: "8px" }}>Use Case:</label>
           <select
             value={selectedUseCase}
@@ -318,33 +325,47 @@ const ChatAPI = (props) => {
               );
             })()}
           </select>
+          {hybridWorkflow && (
+            <button
+              className="workflow-preview-btn"
+              onClick={() => setShowHybrid(true)}
+              title="View Workflow Preview"
+            >
+              <Workflow size={20} strokeWidth={2} />
+            </button>
+          )}
         </div>
 
         {showHybrid && (
-          <div className="template-preview-container">
-            <button
-              className="close-template-btn"
-              onClick={() => setShowHybrid(null)}
-              title="Close Template"
+          <div className="modal-overlay" onClick={() => setShowHybrid(false)}>
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()} // prevent close on content click
             >
-              <XCircle size={20} />
-            </button>
+              <button
+                className="close-template-btn"
+                onClick={() => setShowHybrid(false)}
+                title="Close Template"
+              >
+                <XCircle size={20} />
+              </button>
 
-            <h4>🚀 Hybrid Workflow Preview</h4>
+              <h4 style={{ color: "black" }}>🚀 Hybrid Workflow Preview</h4>
 
-            <div className="workflow-preview">
-              {hybridWorkflow.map((step, index) => (
-                <React.Fragment key={index}>
-                  <div className="workflow-node-readonly">{step.api}</div>
-                  {index < hybridWorkflow.length - 1 && <span className="workflow-arrow">→</span>}
-                </React.Fragment>
-              ))}
+              <div className="workflow-preview">
+                {hybridWorkflow.map((step, index) => (
+                  <React.Fragment key={index}>
+                    <div className="workflow-node-readonly">{step.api}</div>
+                    {index < hybridWorkflow.length - 1 && <span className="workflow-arrow">→</span>}
+                  </React.Fragment>
+                ))}
+              </div>
+
+              <p className="template-preview-note">
+                This template is in read-only mode. You can run it directly or create a new workflow
+                from Hybrid Workspace.
+              </p>
             </div>
-
-            <p className="template-preview-note">
-              This template is in read-only mode. You can run it directly or create a new workflow
-              from Hybrid Workspace.
-            </p>
           </div>
         )}
         <div className="chatapi-input-container">
@@ -394,7 +415,7 @@ const ChatAPI = (props) => {
                 )}
               </div>
             ))}
-            {progress !== null && <div className="progress-bar">{progress}%</div>}
+            {progress !== null && progress !== 0  && <div className="progress-bar">{progress}%</div>}
             <Toast message="✅ Copied!" show={copyToast} />
           </div>
 
