@@ -13,8 +13,8 @@ const firebaseConfig = {
   projectId: "built-in-ai-challenge-1c9c5",
   storageBucket: "built-in-ai-challenge-1c9c5.firebasestorage.app",
   messagingSenderId: "241495019363",
-  appId: "1:241495019363:web:947ab5121d764e18d30d56",
-  measurementId: "G-L557N816VS"
+  appId: "1:241495019363:web:68f0a6eaa100577ad30d56",
+  measurementId: "G-TQGH6E9FMB"
 };
 
 // Initialize Firebase

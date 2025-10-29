@@ -21,7 +21,7 @@ const ChatAPI = () => {
   const [inputText, setInputText] = useState("");
   const [selectedAPI, setSelectedAPI] = useState("Proofreader");
   const [apiConfig, setApiConfig] = useState({});
-  const [attachedImage, setAttachedImage] = useState(null);
+  const [attachedImages, setAttachedImages] = useState([]);
   const [attachedAudios, setAttachedAudios] = useState([]);
   const [copyToast, setCopyToast] = useState(false);
   const [selectedUseCase, setSelectedUseCase] = useState("Default");
@@ -102,17 +102,16 @@ const ChatAPI = () => {
   };
 
   const handleSend = async () => {
-    if (!inputText.trim() && !attachedImage && attachedAudios.length === 0) return;
-
+    if (!inputText.trim() && attachedImages.length === 0 && attachedAudios.length === 0) return;
     const userMessage = {
       type: "user",
       text: inputText,
-      image: attachedImage,
+      images: attachedImages,
       audios: attachedAudios,
     };
     setMessages((prev) => [...prev, userMessage]);
     setInputText("");
-    setAttachedImage(null);
+    setAttachedImages([]);
     setAttachedAudios([]);
     resizeTextarea();
     scrollToBottom();
@@ -129,7 +128,7 @@ const ChatAPI = () => {
     if (hybridWorkflow) {
       result = await executeHybridWorkflow(contextualInput, hybridWorkflow, callAI);
     } else {
-      result = await callAI(selectedAPI, contextualInput, apiConfig, attachedImage, attachedAudios);
+      result = await callAI(selectedAPI, contextualInput, apiConfig, attachedImages, attachedAudios);
     }
 
     setMessages((prev) => {
@@ -152,7 +151,7 @@ const ChatAPI = () => {
   const handleAPIChange = (api) => {
     setSelectedAPI(api);
     setApiConfig(getDefaultConfig(api));
-    setAttachedImage(null);
+    setAttachedImages([]);
   };
 
   const handleCopy = (text) => {
@@ -168,8 +167,18 @@ const ChatAPI = () => {
     e.target.value = "";
   };
 
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    setAttachedImages((prev) => [...prev, ...files]);
+    e.target.value = "";
+  };
+
   const handleRemoveAudio = (index) => {
     setAttachedAudios((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveImage = (index) => {
+    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleClearAll = () => {
@@ -309,13 +318,15 @@ const ChatAPI = () => {
               ) : (
                 <>
                   {msg.text && <div className="chat-bubble">{msg.text}</div>}
-                  {msg.image && (
-                    <img
-                      src={URL.createObjectURL(msg.image)}
-                      alt="preview"
-                      className="chat-image"
-                    />
-                  )}
+                  {msg.images &&
+                    msg.images.map((img, i) => (
+                      <img
+                        key={i}
+                        src={URL.createObjectURL(img)}
+                        alt={`preview-${i}`}
+                        className="chat-image"
+                      />
+                  ))}
                   {msg.audios &&
                     msg.audios.map((audio, aidx) => (
                       <div
@@ -345,6 +356,31 @@ const ChatAPI = () => {
           <Toast message="✅ Copied!" show={copyToast} />
         </div>
 
+        {attachedImages.length > 0 && (
+          <div className="audio-preview-container">
+            {attachedImages.map((img, index) => (
+              <div key={index} className="audio-card" style={{ width: "120px" }}>
+                <img
+                  src={URL.createObjectURL(img)}
+                  alt={`preview-${index}`}
+                  style={{
+                    width: "100%",
+                    height: "80px",
+                    borderRadius: "10px",
+                    objectFit: "cover",
+                  }}
+                />
+                <button
+                  className="remove-audio-card"
+                  onClick={() => handleRemoveImage(index)}
+                >
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {attachedAudios.length > 0 && (
           <div className="audio-preview-container">
             {attachedAudios.map((audio, index) => (
@@ -365,15 +401,15 @@ const ChatAPI = () => {
           </div>
         )}
 
-
         <div className="chatapi-input">
           <label className="btn-plus">
             <Plus size={20} />
             <input
               type="file"
               accept="image/*"
+              multiple
               style={{ display: "none" }}
-              onChange={(e) => setAttachedImage(e.target.files[0])}
+              onChange={handleImageUpload}
             />
           </label>
 
@@ -405,28 +441,11 @@ const ChatAPI = () => {
             />
           </div>
 
-          {attachedImage && (
-            <div className="image-preview">
-              <img
-                className="image-dis"
-                src={URL.createObjectURL(attachedImage)}
-                alt="preview"
-              />
-              <button
-                className="remove-img"
-                onClick={() => setAttachedImage(null)}
-                type="button"
-              >
-                <XCircle size={24} strokeWidth={2.5} />
-              </button>
-            </div>
-          )}
-
           <Button
             className="btn-send"
             onClick={handleSend}
             disabled={
-              loading || (!inputText.trim() && !attachedImage && attachedAudios.length === 0)
+              loading || (!inputText.trim() && !attachedImages && attachedAudios.length === 0)
             }
             style={{ marginLeft: "100px" }}
           >

@@ -14,13 +14,13 @@ export function useAI() {
   const [progress, setProgress] = useState(null);
   const [error, setError] = useState("");
 
-  const callAI = async (apiName, text, options = {}, imageFile = null, audioFiles = []) => {
+  const callAI = async (apiName, text, options = {}, imageFiles = [], audioFiles = []) => {
     setError("");
 
     let extractedText = text || "";
 
-    if (imageFile || (audioFiles && audioFiles.length > 0)) {
-      extractedText = await extractTextFromInput(text, imageFile, audioFiles);
+    if ((imageFiles && imageFiles.length > 0) || (audioFiles && audioFiles.length > 0)) {
+      extractedText = await extractTextFromInput(text, imageFiles, audioFiles);
     }
 
     const APIClass = API_CLASSES[apiName];
@@ -75,10 +75,10 @@ export function useAI() {
     }
 
     // Fallback to Firebase Gemini model
-    return extractTextFromInput(text, imageFile, audioFiles);
+    return extractTextFromInput(text, imageFiles, audioFiles);
   };
 
-  async function extractTextFromInput(text, imageFile = null, audioFiles = []) {
+  async function extractTextFromInput(text, imageFiles = [], audioFiles = []) {
     try {
       console.log('rk_neo --> firebaseGCM got triggerd', )
       setLoading(true);
@@ -88,14 +88,16 @@ export function useAI() {
       const userText = text?.trim() || "Describe this input.";
       inputParts.push({ text: userText });
 
-      if (imageFile) {
-        const imageBase64 = await fileToBase64(imageFile);
-        inputParts.push({
-          inlineData: {
-            data: imageBase64.split(",")[1],
-            mimeType: imageFile.type || "image/jpeg",
-          },
-        });
+      if (imageFiles && imageFiles.length > 0) {
+        for (const imageFile of imageFiles) {
+          const imageBase64 = await fileToBase64(imageFile);
+            inputParts.push({
+              inlineData: {
+                data: imageBase64.split(",")[1],
+                mimeType: imageFile.type || "image/jpeg",
+              },
+            });
+        } 
       }
 
       if (audioFiles && audioFiles.length > 0) {
