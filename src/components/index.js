@@ -4,6 +4,7 @@ import ConfigPreviewModal from "./configPreviewModal";
 import DownloadLoader from "./downloadLoader";
 import OutputDisplay from "./outputDisplay";
 import SelectDropdown from "./selectDropdown";
+import SimpleTour from "./simpleTour";
 import TextArea from "./textArea";
 import TextLoading from "./textLoading";
 import Tooltip from "./tooltip";
@@ -17,6 +18,7 @@ export {
   DownloadLoader,
   OutputDisplay,
   SelectDropdown,
+  SimpleTour,
   TextArea,
   TextLoading,
   Tooltip,

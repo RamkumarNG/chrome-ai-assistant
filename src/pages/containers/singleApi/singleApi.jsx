@@ -13,13 +13,37 @@ import {
 import { useAI } from "../../../hooks/useAI";
 import { API_CONFIGS, API_OPTIONS, API_KEY_LABELS } from "../../constants";
 
-const SingleAPI = () => {
+const SingleAPI = (props) => {
+  const {
+    inputText: propInputText,
+    setInputText: propSetInputText,
+    outputText: propOutputText,
+    setOutputText: propSetOutputText,
+    selectedAPI: propSelectedAPI,
+    setSelectedAPI: propSetSelectedAPI,
+    apiConfig: propApiConfig,
+    setApiConfig: propSetApiConfig,
+  } = props || {};
   const { loading, progress, error, callAI } = useAI();
-  const [inputText, setInputText] = useState("");
-  const [outputText, setOutputText] = useState("");
-  const [selectedAPI, setSelectedAPI] = useState("Proofreader");
-  const [apiConfig, setApiConfig] = useState({});
+
+  const [localInputText, setLocalInputText] = useState("");
+  const [localOutputText, setLocalOutputText] = useState("");
+  const [localSelectedAPI, setLocalSelectedAPI] = useState("Proofreader");
+  const [localApiConfig, setLocalApiConfig] = useState({});
+
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const inputText = propInputText ?? localInputText;
+  const setOutputText = propSetInputText ?? setLocalInputText;
+
+  const outputText = propOutputText ?? localOutputText;
+  const setInputText = propSetOutputText ?? setLocalOutputText;
+
+  const selectedAPI = propSelectedAPI ?? localSelectedAPI;
+  const setSelectedAPI = propSetSelectedAPI ?? setLocalSelectedAPI;
+
+  const apiConfig = propApiConfig ?? localApiConfig;
+  const setApiConfig = propSetApiConfig ?? setLocalApiConfig;
 
   const getDefaultConfig = (api) => {
     const defaultConfig = {};
@@ -124,7 +148,7 @@ const SingleAPI = () => {
             
             <div className="action-buttons">
               <Button
-                className="btn-primary"
+                className="btn-primary single-api-send-btn"
                 onClick={handleRunAI}
                 disabled={!inputText && !selectedImage || loading}
               >
@@ -138,7 +162,7 @@ const SingleAPI = () => {
             {error && <p className="error-text">{error}</p>}
           </div>
 
-          <div className="card">
+          <div className="card single-api-output">
             <h4>Final Output</h4>
             <OutputDisplay
               text={outputText}

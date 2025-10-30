@@ -60,7 +60,6 @@ const TemplateModal = ({ isOpen, onClose, onSave }) => {
 };
 
 const HybridWorkflow = (props) => {
-
   const {
     inputText,
     setInputText,
@@ -88,7 +87,7 @@ const HybridWorkflow = (props) => {
 
   const getDefaultConfig = (api) => {
     const defaultConfig = {};
-    Object.entries(API_CONFIGS[api]).forEach(([key, { options, multi }]) => {
+    Object.entries(API_CONFIGS[api] || {}).forEach(([key, { options, multi }]) => {
       defaultConfig[key] = multi ? [options[0].value] : options[0].value;
     });
     return defaultConfig;
@@ -137,7 +136,12 @@ const HybridWorkflow = (props) => {
   const handleRunHybrid = async () => {
     setOutputText("");
     setIntermediateOutputs([]);
-    const result = await executeHybridWorkflow(inputText, workflow, callAI, setIntermediateOutputs);
+    const result = await executeHybridWorkflow(
+      inputText,
+      workflow,
+      callAI,
+      setIntermediateOutputs
+    );
     setOutputText(result);
   };
 
@@ -197,6 +201,7 @@ const HybridWorkflow = (props) => {
     <div className="hybrid-wrapper dark-mode">
       <aside className="sidebar">
         <h3>Available APIs</h3>
+
         <div className="api-list">
           {API_OPTIONS.map(({ value, label }) => (
             <div key={value} className="api-card" onClick={() => addStep(value)}>
@@ -213,14 +218,17 @@ const HybridWorkflow = (props) => {
       <main className="main-section">
         <div className="top-bar">
           <div className="card">
-            <TextArea
-              value={inputText}
-              onChange={setInputText}
-              label="Enter your input prompt..."
-            />
+            <div className="text-area-container">
+              <TextArea
+                value={inputText}
+                onChange={setInputText}
+                label="Enter your input prompt..."
+              />
+            </div>
+
             <div className="action-buttons">
               <Button
-                className="btn-primary"
+                className="btn-primary hybrid-send-btn"
                 onClick={handleRunHybrid}
                 disabled={!inputText || workflow.length === 0 || loading}
               >
@@ -316,9 +324,13 @@ const HybridWorkflow = (props) => {
               </div>
             </div>
 
-            <div className="card">
+            <div className="card hybrid-output-card">
               <h4>Final Output</h4>
-              <OutputDisplay text={outputText} loading={loading} displayOutput={false} />
+              <OutputDisplay
+                text={outputText}
+                loading={loading}
+                displayOutput={false}
+              />
             </div>
           </div>
         </div>
