@@ -118,6 +118,8 @@ const HybridWorkflow = (props) => {
   const handleClear = () => {
     setInputText("");
     setOutputText("");
+    setIntermediateOutputs([]);
+    setWorkflow([]);
   };
 
   const handleSaveTemplate = (name) => {
