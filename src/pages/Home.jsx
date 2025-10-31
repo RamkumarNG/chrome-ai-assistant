@@ -135,16 +135,6 @@ export default function Home() {
           steps={getTourSteps()}
           isOpen={startTour}
           onClose={() => {
-            setSingleInput("");
-            setSingleOutput("");
-            setHybridInput("");
-            setHybridOutput("");
-            setHybridWorkflow([]);
-            setHybridIntermediateOutputs([]);
-            setApiConfig({});
-            setSelectedAPI("");
-            setChatInput("");
-            setMessages([]);
             setStartTour(false);
           }}
         />
