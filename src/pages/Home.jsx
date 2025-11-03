@@ -1,6 +1,4 @@
-import { useState } from "react";
-import { HelpCircle } from "lucide-react";
-
+import { useState, useEffect } from "react";
 import { Button, SimpleTour } from "../components";
 import HybridWorkflow from "./containers/hybridApi";
 import SingleAPI from "./containers/singleApi";
@@ -8,28 +6,48 @@ import ChatAPI from "./containers/chatApi";
 import { useGlobalStore } from "../store/GlobalStore";
 import { SAMPLE_WORKFLOW, TOUR_STEPS } from "./constants";
 
+import {HelpCircle, Copy } from "lucide-react";
+import { toast, Toaster } from "react-hot-toast";
+
+
+const REQUIRED_FLAGS = [
+  {
+    id: "writer-api-for-gemini-nano",
+    label: "Writer API for Gemini Nano",
+  },
+  {
+    id: "rewriter-api-for-gemini-nano",
+    label: "Rewriter API for Gemini Nano",
+  },
+  {
+    id: "proofreader-api-for-gemini-nano",
+    label: "Proofreader API for Gemini Nano",
+  },
+];
+
 export default function Home() {
   const [mode, setMode] = useState("chat");
   const [startTour, setStartTour] = useState(false);
+  const [showFlagCheck, setShowFlagCheck] = useState(true);
 
   const {
-    // single
     singleInput, setSingleInput,
     singleOutput, setSingleOutput,
-    // hybrid
     hybridInput, setHybridInput,
     hybridOutput, setHybridOutput,
     hybridWorkflow, setHybridWorkflow,
     hybridIntermediateOutputs, setHybridIntermediateOutputs,
-    // chat
     chatInput, setChatInput,
     messages, setMessages,
     attachedImages, setAttachedImages,
     attachedAudios, setAttachedAudios,
-    // shared
     selectedAPI, setSelectedAPI,
     apiConfig, setApiConfig,
   } = useGlobalStore();
+
+  useEffect(() => {
+    setShowFlagCheck(true);
+  }, []);
 
   const handleHelpTour = async () => {
     const inputExamples = {
@@ -67,15 +85,14 @@ export default function Home() {
     setTimeout(() => setStartTour(true), 1600);
   };
 
-  // ✅ Mode-based tour steps
   const getTourSteps = () => {
     switch (mode) {
       case "chat":
-        return TOUR_STEPS["chat"]
+        return TOUR_STEPS["chat"];
       case "hybrid":
-        return TOUR_STEPS["hybrid"]
+        return TOUR_STEPS["hybrid"];
       case "single":
-        return TOUR_STEPS["single"]
+        return TOUR_STEPS["single"];
       default:
         return [];
     }
@@ -134,9 +151,7 @@ export default function Home() {
         <SimpleTour
           steps={getTourSteps()}
           isOpen={startTour}
-          onClose={() => {
-            setStartTour(false);
-          }}
+          onClose={() => setStartTour(false)}
         />
         {componentMap[mode]}
       </>
@@ -145,6 +160,40 @@ export default function Home() {
 
   return (
     <div className="home-page">
+      {showFlagCheck && (
+        <div className="flag-check-overlay">
+          <div className="flag-check-modal">
+            <h2>⚙️ Enable Chrome AI Experimental Flags</h2>
+            <p>
+              Before using <strong>SmartLab</strong>, please enable these flags in your browser:
+            </p>
+            <div className="flag-list">
+              {REQUIRED_FLAGS.map((flag) => (
+                <div key={flag.id} className="flag-item">
+                  <span>
+                    <strong>{flag.label}</strong>
+                    <div className="flag-link">chrome://flags/#{flag.id}</div>
+                  </span>
+                  <Button
+                    className="open-flag-btn"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`chrome://flags/#${flag.id}`);
+                      toast.success("Copied to clipboard!");
+                    }}
+                  >
+                    <Copy size={14} /> Copy
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <Toaster position="bottom-center" />
+            <Button className="continue-btn" onClick={() => setShowFlagCheck(false)}>
+              I’ve Enabled Them → Continue
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="navbar">
         <div className="navbar-left" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <div className="app-name text-xl font-bold">

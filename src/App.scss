@@ -17,6 +17,88 @@ body {
   flex-direction: column;
   height: 100%;
 
+  .flag-check-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .flag-check-modal {
+    background: linear-gradient(135deg, #f8fafc, #e0f2fe);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    padding: 2rem;
+    width: 90%;
+    max-width: 500px;
+    color: #1e293b;
+    text-align: center;
+    font-family: "Inter", sans-serif;
+  }
+
+  .flag-check-modal h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(to right, #2563eb, #0ea5e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .flag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .flag-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+  }
+
+  .flag-link {
+    font-size: 0.8rem;
+    color: #0369a1;
+    user-select: all;
+  }
+
+  .toast {
+    background: #22c55e;
+    color: white;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+  }
+
+
+  .open-flag-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    background: linear-gradient(to right, #3b82f6, #0ea5e9);
+    color: white;
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+  }
+
+  .continue-btn {
+    width: 100%;
+    margin-top: 1rem;
+    font-weight: 600;
+    border-radius: 10px;
+    background: linear-gradient(to right, #2563eb, #0ea5e9);
+    color: white;
+  }
+
+
   .navbar {
     display: flex;
     justify-content: space-between;
