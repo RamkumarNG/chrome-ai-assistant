@@ -28,7 +28,8 @@ const REQUIRED_FLAGS = [
 export default function Home() {
   const [mode, setMode] = useState("chat");
   const [startTour, setStartTour] = useState(false);
-  const [showFlagCheck, setShowFlagCheck] = useState(true);
+  const [showFlagCheck, setShowFlagCheck] = useState(!localStorage.getItem("geminiFlagsConfirmed"));
+  const [showHomeTour, setShowHomeTour] = useState(!localStorage.getItem("tourHintShown"));
 
   const {
     singleInput, setSingleInput,
@@ -46,7 +47,10 @@ export default function Home() {
   } = useGlobalStore();
 
   useEffect(() => {
-    setShowFlagCheck(true);
+    const confirmed = localStorage.getItem("geminiFlagsConfirmed");
+    if (!confirmed) {
+      setShowFlagCheck(true);
+    }
   }, []);
 
   const handleHelpTour = async () => {
@@ -187,7 +191,13 @@ export default function Home() {
               ))}
             </div>
             <Toaster position="bottom-center" />
-            <Button className="continue-btn" onClick={() => setShowFlagCheck(false)}>
+            <Button
+              className="continue-btn"
+              onClick={() => {
+                localStorage.setItem("geminiFlagsConfirmed", "true");
+                setShowFlagCheck(false)}
+              }
+            >
               I’ve Enabled Them → Continue
             </Button>
           </div>
@@ -206,14 +216,43 @@ export default function Home() {
 
         <div className="navbar-left">
           <div className="mode-selector">
-            <Button className={mode === "single" ? "mode-btn active" : "mode-btn"} onClick={() => setMode("single")}>Smart Prompt</Button>
-            <Button className={mode === "hybrid" ? "mode-btn active" : "mode-btn"} onClick={() => setMode("hybrid")}>Smart Chain</Button>
-            <Button className={mode === "chat" ? "mode-btn active" : "mode-btn"} onClick={() => setMode("chat")}>Smart Chat</Button>
+            <Button
+              className={mode === "single" ? "mode-btn active" : "mode-btn"}
+              onClick={() => setMode("single")}
+            >
+              Smart Prompt
+            </Button>
+            <Button
+              className={mode === "hybrid" ? "mode-btn active" : "mode-btn"}
+              onClick={() => setMode("hybrid")}
+            >
+              Smart Chain
+            </Button>
+            <Button
+              className={mode === "chat" ? "mode-btn active" : "mode-btn"}
+              onClick={() => setMode("chat")}
+            >
+              Smart Chat
+            </Button>
           </div>
 
-          <button onClick={handleHelpTour} className="tour-btn" title="Take a guided tour">
-            <HelpCircle size={22} />
-          </button>
+          <SimpleTour
+            steps={TOUR_STEPS['home']}
+            isOpen={showHomeTour}
+            disableBlur={true}
+            onClose={() => {
+              localStorage.setItem("tourHintShown", "true")
+              setShowHomeTour(false);
+            }}
+          />
+          <div className="home-tour-btn-wrapper">
+            <button
+              className={`tour-btn ${showHomeTour ? 'highlight-tour': ''}`}
+              onClick={handleHelpTour}
+            >
+              <HelpCircle size={22} />
+            </button>
+          </div>
         </div>
       </div>
 

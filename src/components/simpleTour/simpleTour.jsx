@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 
-const SimpleTour = ({ steps = [], isOpen, onClose }) => {
+const SimpleTour = ({ steps = [], isOpen, onClose, disableBlur = false }) => {
   const [index, setIndex] = useState(0);
   const [pos, setPos] = useState(null);
   const tooltipRef = useRef(null);
@@ -36,10 +36,7 @@ const SimpleTour = ({ steps = [], isOpen, onClose }) => {
       placement = "center";
     }
 
-    // Calculate preferred left centered on element
     const preferredLeft = r.left + scrollX + r.width / 2;
-
-    // Properly clamp tooltip inside viewport with safe padding
     const pad = 30;
     const clampedLeft = Math.min(
       Math.max(preferredLeft, pad + tooltipW / 2),
@@ -51,14 +48,10 @@ const SimpleTour = ({ steps = [], isOpen, onClose }) => {
 
   useEffect(() => {
     if (!isOpen) return;
-    // small delay to allow layout / rendering of elements
     const id = setTimeout(() => computePosition(steps[index]), 80);
-
-    // update position on resize/scroll so tooltip stays near target
     const onResize = () => computePosition(steps[index]);
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onResize, { passive: true });
-
     return () => {
       clearTimeout(id);
       window.removeEventListener("resize", onResize);
@@ -78,14 +71,13 @@ const SimpleTour = ({ steps = [], isOpen, onClose }) => {
     if (index < steps.length - 1) setIndex(index + 1);
     else onClose();
   };
-  const prev = () => {
-    if (index > 0) setIndex(index - 1);
-  };
+  const prev = () => index > 0 && setIndex(index - 1);
   const skip = () => onClose();
 
   const left = pos ? pos.left : window.innerWidth / 2;
   const top = pos ? pos.top : window.innerHeight / 2;
   const placement = pos ? pos.placement : "center";
+  const arrowAlign = step.arrowAlign || "center"; // 👈 default config
 
   const transform =
     placement === "top"
@@ -94,9 +86,24 @@ const SimpleTour = ({ steps = [], isOpen, onClose }) => {
       ? "translate(-50%, 0%)"
       : "translate(-50%, -50%)";
 
+  const arrowPos = {
+    left:
+      arrowAlign === "left"
+        ? "20%"
+        : arrowAlign === "right"
+        ? "95%"
+        : "50%",
+    transform: "translateX(-50%) rotate(45deg)",
+  };
+
   return (
     <>
-      <div className="simple-tour-backdrop" onClick={skip} />
+      {!disableBlur && (
+        <div
+          className="simple-tour-backdrop"
+          onClick={skip}
+        />
+      )}
 
       <div
         ref={tooltipRef}
@@ -115,22 +122,25 @@ const SimpleTour = ({ steps = [], isOpen, onClose }) => {
               <span
                 key={i}
                 className={`simple-tour-step-dot ${i === index ? "active" : ""}`}
-                aria-hidden
               />
             ))}
           </div>
 
           <div className="simple-tour-controls">
-            <button
-              className="simple-tour-btn simple-tour-prev"
-              onClick={prev}
-              disabled={index === 0}
-            >
-              Prev
-            </button>
-            <button className="simple-tour-btn simple-tour-skip" onClick={skip}>
-              Skip
-            </button>
+            {steps?.length !== 1 && (
+              <>
+                <button
+                  className="simple-tour-btn simple-tour-prev"
+                  onClick={prev}
+                  disabled={index === 0}
+                >
+                  Prev
+                </button>
+                <button className="simple-tour-btn simple-tour-skip" onClick={skip}>
+                  Skip
+                </button>
+              </>
+            )}
             <button className="simple-tour-btn simple-tour-next" onClick={next}>
               {index === steps.length - 1 ? "Done" : "Next"}
             </button>
@@ -141,8 +151,8 @@ const SimpleTour = ({ steps = [], isOpen, onClose }) => {
           className="simple-tour-arrow"
           style={
             placement === "bottom"
-              ? { top: -7, transform: "translateX(-50%) rotate(45deg)" }
-              : { left: "50%", transform: "translateX(-50%) rotate(45deg)" }
+              ? { top: -7, ...arrowPos }
+              : { top: "100%", ...arrowPos }
           }
         />
       </div>
